@@ -9,14 +9,15 @@
     "dependencies": {
         "cookie-parser": "~1.4.4",
         "debug": "~2.6.9",
-        "es-module-shims": "^1.5.18",
         "express": "~4.16.1",
         "http-errors": "~1.6.3",
-        "jquery": "^3.6.1",
-        "lil-gui": "^0.17.0",
         "morgan": "~1.9.1",
         "nodemon": "^2.0.20",
         "serve-favicon": "~2.5.0",
-        "three": "^0.144.0"
+
+        "es-module-shims": "^1.5.18",
+        "three": "^0.144.0",
+        "jquery": "^3.6.1",
+        "lil-gui": "^0.17.0"
     }
 }
