@@ -1,0 +1,26 @@
+{
+  "name": "fogings-app",
+  "version": "1.0.0",
+  "description": "Die App von fogings",
+  "scripts": {
+    "clean": "rimraf build/",
+    "capy-files": "copyfiles -u 1 src/bin/www src/httpdocs/*.html src/httpdocs/*.css src/httpdocs/models/* src/httpdocs/videos/* src/httpdocs/images/* src/httpdocs/fonts/* src/httpdocs/favicon.ico build/",
+    "copy-files": "copyfiles -u 1 -e=./src/**/*.ts -e=./src/package-lock.json -e=./src/node_modules/**/* \"./src/**/*\" build/",
+    "buildclean": "npm run clean && tsc && npm run copy-files",
+    "build": "tsc && npm run copy-files"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jquery": "^3.5.14",
+    "@types/node": "^18.8.2",
+    "@types/three": "^0.144.0",
+    "copyfiles": "^2.4.1",
+    "lil-gui": "^0.17.0",
+    "rimraf": "^3.0.2",
+    "three": "^0.144.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  }
+}

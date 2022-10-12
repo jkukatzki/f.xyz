@@ -1,0 +1,5 @@
+fogingsApp/node_modules
+fogingsApp/src/node_modules
+fogingsApp/build
+fogingsApp/package-lock.json
+fogingsApp/src/package-lock.json
