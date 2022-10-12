@@ -4,7 +4,6 @@
   "description": "Die App von fogings",
   "scripts": {
     "clean": "rimraf build/",
-    "capy-files": "copyfiles -u 1 src/bin/www src/httpdocs/*.html src/httpdocs/*.css src/httpdocs/models/* src/httpdocs/videos/* src/httpdocs/images/* src/httpdocs/fonts/* src/httpdocs/favicon.ico build/",
     "copy-files": "copyfiles -u 1 -e=./src/**/*.ts -e=./src/package-lock.json -e=./src/node_modules/**/* \"./src/**/*\" build/",
     "buildclean": "npm run clean && tsc && npm run copy-files",
     "build": "tsc && npm run copy-files"
