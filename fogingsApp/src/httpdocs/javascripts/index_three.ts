@@ -195,12 +195,70 @@ let spiralsTitleSettings : FOGEO.ExperienceSettings = {
     }
 }
 
+let deskShowcaseSettings: FOGEO.ExperienceSettings = {
+    renderOptions: {
+        params: {antialias: true},
+        elSelector: '#showcase-threejs-render',
+        sizeGetter: (arg: FOGEO.Experience) => {
+            const el = document.querySelector(arg.renderOptions.elSelector);
+            if(el){
+                return { width: el.clientWidth, height: el.clientHeight }
+            } else {
+                console.error('Could not set render size because element selector did not return an element.', arg);
+                return { width: 0, height: 0}
+            }
+            
+        },
+        clearColor: ['#000000', 0]
+    },
+    objects : {
+        fromFiles: {
+            'desk' : {
+                origin: 'models/deskShowcase.glb',
+                loader: 'gltf'
+            }
+        },
+        cameras : {
+            'camera01' : {
+                camera: new THREE.PerspectiveCamera( 100, 4/3, 0.1, 100), //TODO: decrease far culling value as far as possible
+                active: true,
+                override: {
+                    position: new THREE.Vector3(3.2, 1, 1),
+                    rotation: new THREE.Vector3(0, Math.PI / 180 * 63, 0)
+                }
+            }
+        },
+        lights: {
+            'center' : {
+                light: new THREE.PointLight( "#ff9cd7", 0.3, 100 ),
+                override: {
+                    position: new THREE.Vector3(0, 0, -0.5)
+                }
+            },
+            'back' : {
+                light: new THREE.PointLight( 'blue', 0.2, 200 ),
+                override: {
+                    position: new THREE.Vector3(0, 0, -5)
+                }
+            },
+            'front' : {
+                light: new THREE.SpotLight( 'white', 0.6, 60, 2),
+                override: {
+                    position: new THREE.Vector3(0, 0, 5)
+                }
+            }
+        }
+    },
+    GUI: ['objectOutlinerAndTransforms']
+}
+
 var experiences: FOGEO.Experience[] = [];
 
 let init = function(){
     experiences = [
         new FOGEO.Experience(backgroundGridSettings),
-        new FOGEO.Experience(spiralsTitleSettings)
+        new FOGEO.Experience(spiralsTitleSettings),
+        new FOGEO.Experience(deskShowcaseSettings)
     ];
 
     //start clocks 

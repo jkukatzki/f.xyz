@@ -61,7 +61,9 @@ const GUIPresets: {[key: string]: GUICreator} = {
                                 objectSelectorButtons[child.name].domElement.classList.add('fogeo-objectoutliner-selected');
                                 
                                 //POSITION
-    
+                                
+                                
+
                                 //destroy old controllers
                                 currentPositionTransformControllers.forEach((controller) => {
                                     controller.destroy();
