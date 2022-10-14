@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GUI } from 'lil-gui';
 import * as FOGEO from './fogeo.js';
 
-let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
+let backgroundGridSettings: FOGEO.ExperienceSettings = {
     customProps: {sinCenter: {x: 0.5, y: 0.5}, zFactor: 0.2},
     eventFunctions: {
         onCursorMove: function(self: FOGEO.Experience, x: number, y: number) {
@@ -14,7 +14,7 @@ let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
     renderOptions: {
         params: {antialias: true},
         elSelector: '#background-threejs-render',
-        sizeGetter: (arg: any) => {
+        sizeGetter: (arg: FOGEO.Experience) => {
             return { width: window.innerWidth, height: window.innerHeight }
         },
         clearColor: ['#000000']
@@ -33,7 +33,7 @@ let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
         },
         cameras : {
             'camera01' : {
-                camera: new THREE.PerspectiveCamera( 90, window.innerWidth/window.innerHeight, 0.1, 1000),
+                camera: new THREE.PerspectiveCamera( 90, 1, 0.1, 1000),
                 active: true,
                 override: {
                     position: new THREE.Vector3(0, 3, 15)
@@ -41,7 +41,7 @@ let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
             }
         },
         lights: {
-            'pointLight' : {
+            'mainLight' : {
                 light: new THREE.PointLight( 'pink', 4, 55 ),
                 override: {
                     position: new THREE.Vector3(0, 50, 0)
@@ -51,7 +51,8 @@ let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
     },
     geometryModifiers: {
         sinWaveToCursor: {
-            modifier: (geo: THREE.BufferGeometry, self: FOGEO.Experience, elapsedTime?: number) => {
+            modifier: (mesh: THREE.Mesh, self: FOGEO.Experience, elapsedTime?: number) => {
+                const geo = mesh.geometry;
                 //set wireframe grid height
                 if(elapsedTime){
                     const sinAdd = elapsedTime;
@@ -74,14 +75,133 @@ let backgroundExperienceSettings: FOGEO.ExperienceSettings = {
     }
 };
 
+let spiralMeshOverride : FOGEO.ObjectOverride = {
+    material: new THREE.MeshPhongMaterial( {color: 'pink'}),
+    scale : new THREE.Vector3(2, 2, 2),
+    makeInstance: (mesh: THREE.Mesh) => {
+        const count = 3;
+        const iMesh = new THREE.InstancedMesh(mesh.geometry, mesh.material, count);
+        iMesh.scale.copy(mesh.scale);
+        iMesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
+        return iMesh;
+    }
 
-// Render Loop
-var zFactor = 0.3;
+}
+
+let spiralsTitleSettings : FOGEO.ExperienceSettings = {
+    customProps: {
+        cursorCords: {x: 0.5, y: 0.5}
+    },
+    eventFunctions: {
+        onCursorMove: function(self: FOGEO.Experience, x: number, y: number) {
+            self.customProps.cursorCords = {x, y};
+        }
+    },
+    renderOptions: {
+        params: {antialias: true},
+        elSelector: '#title-threejs-render',
+        sizeGetter: (arg: FOGEO.Experience) => {
+            const el = document.querySelector(arg.renderOptions.elSelector);
+            if(el){
+                return { width: el.clientWidth, height: el.clientHeight }
+            } else {
+                console.error('Could not set render size because element selector did not return an element.', arg);
+                return { width: 0, height: 0}
+            }
+            
+        },
+        clearColor: ['#000000', 0]
+    },
+    objects : {
+        fromFiles: {
+            'spirals' : {
+                origin: 'models/dna.glb',
+                loader: 'gltf',
+                extract: ['dna', 'dna_mirrored'],
+                override: {
+                    'dna': spiralMeshOverride,
+                    'dna_mirrored': spiralMeshOverride
+                }
+            }
+        },
+        cameras : {
+            'camera01' : {
+                camera: new THREE.PerspectiveCamera( 83, 1, 0.1, 1000), //TODO: decrease far culling value as far as possible
+                active: true,
+                override: {
+                    position: new THREE.Vector3(0, 0, 1.55)
+                }
+            }
+        },
+        lights: {
+            'center' : {
+                light: new THREE.PointLight( "#ff9cd7", 0.3, 100 ),
+                override: {
+                    position: new THREE.Vector3(0, 0, -0.5)
+                }
+            },
+            'back' : {
+                light: new THREE.PointLight( 'blue', 0.2, 200 ),
+                override: {
+                    position: new THREE.Vector3(0, 0, -5)
+                }
+            },
+            'front' : {
+                light: new THREE.SpotLight( 'white', 0.6, 60, 2),
+                override: {
+                    position: new THREE.Vector3(0, 0, 5)
+                }
+            }
+        }
+    },
+    GUI: ['objectOutlinerAndTransforms'],
+    geometryModifiers: {
+        lineSpreadAndRotateToCursor: {
+            modifier: (mesh: THREE.Mesh, self: FOGEO.Experience, elapsedTime?: number) => {
+                if(!(mesh instanceof THREE.InstancedMesh)){
+                    console.error('This geometry modifier only works on meshes of type InstancedMesh', mesh);
+                    return;
+                }
+                let xDir = 1;
+                if(mesh.name === 'dna_mirrored'){
+                    xDir = -1;
+                }
+                const line = {
+                    start: new THREE.Vector3(0.6*xDir, 0, 0),
+                    end : new THREE.Vector3(3.4*xDir, 0 , -1.3)
+                }
+                const sizeLinear = [1, 0.2];
+                const rotationXLinear = [-1.1, 0.3];
+                function mix(val: number, toMixBetween: number[]){
+                    return (1-val)*toMixBetween[0]+val*toMixBetween[1]
+                }
+                for(let i = 0; i < mesh.count; i++){
+                    //spread along line
+                    const scaleSmallerLinear = mix(i/(mesh.count+1), sizeLinear);
+                    const travel = new THREE.Vector3(i*((line.end.x-line.start.x)/mesh.count), i*((line.end.y-line.start.y)/mesh.count), i*((line.end.z-line.start.z)/mesh.count));
+                    const pos = line.start.add(travel);
+                    const scale = new THREE.Vector3(scaleSmallerLinear, scaleSmallerLinear, scaleSmallerLinear);
+                    const dummy = new THREE.Object3D();
+                    dummy.position.copy(pos);
+                    dummy.scale.copy(scale);
+                    dummy.rotation.set(mix(self.customProps.cursorCords.y, rotationXLinear), xDir*(elapsedTime ? elapsedTime : 0)*scaleSmallerLinear, 0);
+                    dummy.updateMatrix();
+                    mesh.setMatrixAt(i, dummy.matrix);
+                    mesh.instanceMatrix.needsUpdate = true;
+                }
+            },
+            applyTo: ['dna', 'dna_mirrored']
+        }
+    }
+}
 
 var experiences: FOGEO.Experience[] = [];
 
 let init = function(){
-    experiences.push(new FOGEO.Experience(backgroundExperienceSettings));
+    experiences = [
+        new FOGEO.Experience(backgroundGridSettings),
+        new FOGEO.Experience(spiralsTitleSettings)
+    ];
 
     //start clocks 
     experiences.forEach((exp: FOGEO.Experience) => {
@@ -124,16 +244,12 @@ let animate = function(){
             const geoMod = experience.geometryModifiers[geoModsKey];
             if(geoMod.applyTo !== '*'){
                 geoMod.applyTo.forEach((meshNameToApplyTo) => {
-                    //TODO: scene.getbyname() ??
-                    if(experience.initialSettings.objects.meshes?.[meshNameToApplyTo]){
-                        geoMod.modifier(experience.initialSettings.objects.meshes[meshNameToApplyTo].mesh.geometry, experience, elapsedTime);
-                    } else if(experience.scene.getObjectByName(meshNameToApplyTo)){
+                   if(experience.scene?.getObjectByName(meshNameToApplyTo)){
                         const mesh = experience.scene.getObjectByName(meshNameToApplyTo);
                         if(mesh instanceof THREE.Mesh){
-                            geoMod.modifier(mesh.geometry, experience, elapsedTime);
-                        }
-                        
-                    }
+                            geoMod.modifier(mesh, experience, elapsedTime);
+                        }   
+                    };
                 })
             } else {
                 //TODO: apply modifier to all meshes in scene
@@ -155,8 +271,6 @@ for( let i=0; i<experiences.length; i++ ){
 animate();
 
 export {experiences}
-
-
 
 /*
 function easeIntoValue(firstValue, secondValue, duration, resolution, result){

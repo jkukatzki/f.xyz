@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'httpdocs')));
 
-const nm_dependencies = ['three', 'jquery', 'es-module-shims']; // keep adding required node_modules to this array.
+const nm_dependencies = ['three', 'lil-gui', 'jquery', 'es-module-shims',]; // keep adding required node_modules to this array.
 nm_dependencies.forEach(dep => {
   app.use(`/scripts/${dep}`, express.static(path.resolve(`node_modules/${dep}`)));
 });

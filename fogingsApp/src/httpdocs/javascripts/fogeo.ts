@@ -1,8 +1,9 @@
+import * as LILGUI from 'lil-gui';
 import * as THREE from 'three';
-import { Clock } from 'three';
+import { CubeCamera } from 'three';
 import {GLTFLoader, GLTF} from 'three/examples/jsm/loaders/GLTFLoader';
 
-var defaults: ExperienceSettings = {
+const defaults: ExperienceSettings = {
     renderOptions: {
         elSelector: 'body',
         sizeGetter: (input: any) => {
@@ -19,6 +20,114 @@ var defaults: ExperienceSettings = {
     },
     geometryModifiers: {}
 }
+
+interface GUICreator {
+    create: (objArray: THREE.Object3D[]) => (void),
+    styles?: string
+}
+
+const GUIPresets: {[key: string]: GUICreator} = {
+    objectOutlinerAndTransforms: {
+        create: (objs) => {
+            if(!objs){
+                console.error('Could not create object outliner because scene is undefined');
+                return;
+            }
+            const panel = new LILGUI.GUI({width: 310});
+            const objectsFolder = panel.addFolder('Objects');
+            const objectSelectorButtons: {[key: string]: any} = {};
+            const transformsFolder = panel.addFolder('Transform');
+            const transformPositionFolder = transformsFolder.addFolder('Position');
+            let currentPositionTransformControllers : LILGUI.Controller[] = [];
+            let activeObject: THREE.Object3D | undefined = undefined;
+            function createButtonsFromObjects(objs: THREE.Object3D[], folder: LILGUI.GUI){
+                folder.domElement.classList.add('fogeo-objectoutliner-group');
+                for(let i = 0; i<objs.length; i++){
+                    const child: THREE.Object3D = objs[i];
+                    if(child instanceof THREE.Group){
+                        //create new folder instead
+                        createButtonsFromObjects(child.children, folder.addFolder(child.name));
+                    } else {
+                        let objectSelectButton: {[key: string]: Function} = {};
+                        //on button press:
+                        objectSelectButton[child.name] = () => {
+                            if(activeObject !== child){
+                                activeObject = child;
+                                for(let objectSelectorButtonsKey in objectSelectorButtons){
+                                    objectSelectorButtons[objectSelectorButtonsKey].setInactive();
+                                }
+                                objectSelectorButtons[child.name].setActive();
+                                
+                                //POSITION
+    
+                                //destroy old controllers
+                                currentPositionTransformControllers.forEach((controller) => {
+                                    controller.destroy();
+                                });
+                                currentPositionTransformControllers = [];
+                                //create new controllers
+                                const childPositionToString = {
+                                    x: child.position.x.toString(),
+                                    y: child.position.y.toString(),
+                                    z: child.position.z.toString()
+                                }
+                                for(let axis of ['x', 'y', 'z']){
+                                    currentPositionTransformControllers.push(transformPositionFolder.add(childPositionToString, axis));
+                                }
+                                //bind functions to change events of new controllers
+                                currentPositionTransformControllers.forEach((controller) => {
+                                    controller.onChange((value: string) => {
+                                        const newVal = Number.parseFloat(value);
+                                        if(!isNaN(newVal)){
+                                            console.log('Setting new position for child.', child, newVal);
+                                            child.position.set(controller.property === 'x' ? newVal : child.position.x, controller.property === 'y' ? newVal : child.position.y, controller.property === 'z' ? newVal : child.position.z);
+                                        }
+                                    });
+                                    controller.onFinishChange((value: string) => {
+                                        const newVal = Number.parseFloat(value);
+                                        if(isNaN(newVal)){
+                                            console.log('New value for position is not a valid float, resetting to previous.');
+                                            let previousVal = {'x':0, 'y':1, 'z':2}[controller.property];
+                                            previousVal = previousVal ? previousVal : 0;
+                                            controller.setValue(child.position.getComponent(previousVal).toString());
+                                        } else {
+                                            controller.setValue(newVal.toString());
+                                        }
+                                    });
+                                })
+
+                            }
+                        };
+                        objectSelectorButtons[child.name] = ( folder.add(objectSelectButton, child.name) );
+                    }
+                };
+            }
+            //start from top of tree
+            createButtonsFromObjects(objs, objectsFolder);
+            
+            //set functions for controls
+            //object select buttons:
+            for(let objectSelectorButtonsKey in objectSelectorButtons){
+                const control = objectSelectorButtons[objectSelectorButtonsKey];
+                control.setActive = () => {
+                    control.domElement.classList.add('control-inactive');//'fogeo-objectoutliner-inactive');
+                };
+                control.setInactive = () => {
+                    control.domElement.classList.remove('control-inactive')
+                }
+            };
+
+            //set first object as default selected: //TODO: do this differently, put controller creation in seperate function and call here
+            setTimeout(() => { $(Object.entries(objectSelectorButtons)[0][1].domElement).find('button').trigger('click'); }, 100);
+        },
+        styles: `.fogeo-objectoutliner-group > .children > .controller > .widget > button {
+            text-align: left;
+            padding-left: 0.5em;
+        }
+        `
+    }
+}
+
 
 interface ObjectCollection {
     cameras?: {
@@ -56,7 +165,7 @@ interface ObjectOverride {
     rotation?: THREE.Euler | THREE.Vector3 | number;
     scale?: THREE.Vector3;
     material?: THREE.Material;
-    makeInstance?: (mesh: THREE.Mesh) => {iMesh: THREE.InstancedMesh};
+    makeInstance?: (mesh: THREE.Mesh) => (THREE.InstancedMesh);
 }
 
 interface RenderOptions {
@@ -67,7 +176,7 @@ interface RenderOptions {
 }
 
 interface GeometryModifier {
-    modifier: (geo: THREE.BufferGeometry, self: Experience, elapsedTime?: number) => void;
+    modifier: (mesh: THREE.Mesh, self: Experience, elapsedTime?: number) => void;
     applyTo: string[] | "*";
     updateInterval?: number;
 }
@@ -83,14 +192,15 @@ interface ExperienceSettings {
         onResize?: Function;
         onCursorMove?: Function;
         [key: string] : Function | undefined;
-    }
+    },
+    GUI?: string[]
 }
 
 let loaders : {[key: string]: THREE.Loader} = {};
 
 interface LoaderTemplate {
     loaderFactory: () => (THREE.Loader);
-    handler: (loader: THREE.Loader, fromFile: FromFileImport, self: Experience) => (Promise<THREE.Object3D>);
+    handler: (loader: THREE.Loader, fromFile: FromFileImport, self: Experience, name: string) => (Promise<THREE.Object3D>);
 }
 
 interface FromFileImport {
@@ -107,27 +217,37 @@ let loaderTemplates: {
 } = {
     gltf: {
         loaderFactory: () => {return new GLTFLoader()},
-        handler: (loader: THREE.Loader, fromFile: FromFileImport, self: Experience) => {
+        handler: (loader: THREE.Loader, fromFile: FromFileImport, self: Experience, name: string) => {
             return new Promise<THREE.Object3D>((loadResolve, loadReject) => {
                 if(loader instanceof GLTFLoader){
+                    let modifiedGltf: THREE.Group;
                     loader.load(fromFile.origin, function ( gltf: GLTF) {
-                        console.log('Loaded GLTF', gltf);
+                        gltf.scene.name = name;
+                        console.log('Loaded GLTF', JSON.parse(JSON.stringify(gltf.scene)));
                         if(fromFile.extract){
                             let extract = fromFile.extract;
-                            gltf.scene.traverse(function(child: THREE.Object3D<THREE.Event>){    
+                            //TODO: move this to createFromObjectCollection()?
+                            gltf.scene.traverse(function(child: THREE.Object3D<THREE.Event>){
                                 if(extract.includes(child.name) && child instanceof THREE.Mesh){
                                     console.log('constructing mesh from gltf scene', child);
                                     if(fromFile.override && fromFile.override[child.name]){
-                                        let overrideChild = fromFile.override[child.name];
-                                        self.override(child, overrideChild);
-                                        if(overrideChild.makeInstance){
-                                            const name = child.name;
-                                            child = overrideChild.makeInstance(child).iMesh;
-                                            child.name = name;
+                                        if(!modifiedGltf){
+                                            modifiedGltf = gltf.scene.clone();
                                         }
+                                        let childOverride = fromFile.override[child.name];
+                                        const respectiveChildInClone = modifiedGltf.getObjectByName(child.name);
+                                        if(respectiveChildInClone){
+                                            self.override(respectiveChildInClone, childOverride, modifiedGltf);
+                                        } else {
+                                            console.error('Could not get child in clone of group that is being modified.');
+                                        };
                                     }
                                 }
-                            })
+                            });
+                            if(modifiedGltf){
+                                gltf.scene = modifiedGltf;
+                            }
+                            console.log('gltf:', gltf);
                             loadResolve(gltf.scene);
                         };
                         loadResolve(gltf.scene);
@@ -137,7 +257,7 @@ let loaderTemplates: {
                         loadReject();
                     });
                 } else {
-
+                    console.error('handler is for type gltf but loader is not of type GTLFLoader');
                 }
                 
             })
@@ -149,9 +269,11 @@ class Experience {
 
     customProps: any;
 
-    scene: THREE.Scene;
+    scene: THREE.Scene | undefined;
 
     objects: ObjectCollection = {};
+
+    loadPromises: Promise<THREE.Object3D>[] = [];
 
     renderer: THREE.WebGLRenderer;
 
@@ -159,7 +281,7 @@ class Experience {
 
     clock: THREE.Clock = new THREE.Clock();
 
-    activeCam: THREE.Camera | undefined;
+    activeCam: string | undefined;
 
     geometryModifiers?: {
         [key: string] : GeometryModifier;
@@ -178,7 +300,6 @@ class Experience {
     initialSettings: ExperienceSettings;
 
     constructor(settings: ExperienceSettings){
-        this.scene = new THREE.Scene();
         this.initialSettings = settings;
         this.customProps = settings.customProps === undefined ? {} : settings.customProps;
         if(settings.eventFunctions){
@@ -192,10 +313,7 @@ class Experience {
         if(settings.renderOptions.clearColor){
             this.renderer.setClearColor(settings.renderOptions.clearColor[0], settings.renderOptions.clearColor[1]);
         };
-        const size: {width: number, height: number} = this.renderOptions.sizeGetter(this);
-        this.renderer.setSize(size.width, size.height);
         document.querySelector(this.renderOptions.elSelector)?.appendChild(this.renderer.domElement);
-
 
         if(settings.geometryModifiers){
             this.geometryModifiers = settings.geometryModifiers;
@@ -209,42 +327,66 @@ class Experience {
             const newlyCreated = this.createFromObjCollection(settings.objects);
             this.scene = newlyCreated.scene;
             this.objects = newlyCreated.newCollection;
+            //this.objects only includes cameras, no new meshes/lights/fromFile entries are being created, they are present in the scene with overridden values and their initial values are stored in this.initialSettings
+            //names are bound to objects in createFromObjectCollection() with their respective keys, access objects with .getObjectByName(name) on this.scene
         };
         this.cameraAndRendererUpdate();
+        
+        //GUI
+        Promise.all(this.loadPromises).then(() => {
+            settings.GUI?.forEach((gui) => {
+                if(this.scene){
+                    const newGUI = GUIPresets[gui];
+                    if(newGUI.styles){
+                        const styleTagEl = document.createElement('style');
+                        styleTagEl.innerHTML = newGUI.styles;
+                        document.head.append(styleTagEl);
+                    }
+                    if(this.objects.cameras){
+                        newGUI.create(this.scene.children.concat( Object.entries( this.objects.cameras ).map((cameraEntry) => cameraEntry[1].camera) ) );
+                    } else {
+                        newGUI.create(this.scene.children);
+                    }
+                    
+                } else {
+                    console.error('Could not create gui because this.scene is undefined');
+                }
+            });
+        });
 
-    };
+    }
 
     render = () => {
-        if(this.activeCam){
-            this.renderer.render(this.scene, this.activeCam);
+        if(this.activeCam && this.scene && this.objects.cameras){
+            this.renderer.render(this.scene, this.objects.cameras[this.activeCam].camera);
         } else {
-            console.error('Could not render, this.activeCam is undefined.', this);
+            console.error('Could not render, this.activeCam or this.scene is undefined', this);
         }
     }
 
     cameraAndRendererUpdate = () => {
         if(this.objects.cameras){
-            let activeCam: THREE.Camera | undefined;
-            let fallback: THREE.Camera | undefined = undefined;
+            let activeCam: string | undefined;
+            let fallback: string = Object.keys(this.objects.cameras)[0];
             for(let camKey in this.objects.cameras){
                 if(this.objects.cameras[camKey].active){
-                    activeCam = this.objects.cameras[camKey].camera;
+                    activeCam = camKey;
                     break;
                 }
                 if(this.objects.cameras[camKey].active === undefined){
-                    fallback = this.objects.cameras[camKey].camera;
+                    fallback = camKey;
                 }
             }
             if(!activeCam){
                 activeCam = fallback;
             }
-            const size = this.renderOptions.sizeGetter(this.renderOptions.elSelector);
-            if(activeCam instanceof THREE.PerspectiveCamera){
-                activeCam.aspect = size.width/size.height;
-                activeCam.updateProjectionMatrix();
+            const size = this.renderOptions.sizeGetter(this);
+            const activeCamObject = this.objects.cameras[activeCam].camera
+            if(activeCamObject instanceof THREE.PerspectiveCamera){
+                activeCamObject.aspect = size.width/size.height;
+                activeCamObject.updateProjectionMatrix();
             }
             this.activeCam = activeCam;
-
             this.renderer.setSize(size.width, size.height);
         }
     }
@@ -252,13 +394,19 @@ class Experience {
     createFromObjCollection: (objCollection: ObjectCollection) => {scene: THREE.Scene, newCollection: ObjectCollection} = (objCollection) => {
         const scene = new THREE.Scene();
         const newCollection: ObjectCollection = {};
+
         //setup cameras
         if(objCollection.cameras){
+            newCollection.cameras = {};
             for(let camerasKey in objCollection.cameras){
-                const camera = objCollection.cameras[camerasKey].camera;
+                objCollection.cameras[camerasKey].camera.name = camerasKey;
+                let camera = objCollection.cameras[camerasKey].camera;
                 const cameraOverride = objCollection.cameras[camerasKey].override;
                 if(cameraOverride){
-                    this.override(camera, cameraOverride);
+                    const newCamera = this.override(camera, cameraOverride);
+                    if(newCamera instanceof THREE.Camera){
+                        objCollection.cameras[camerasKey].camera = newCamera;
+                    }
                 }
             }
             newCollection.cameras = objCollection.cameras;
@@ -270,37 +418,51 @@ class Experience {
         if(objCollection.lights){
             const lightsKeys = Object.keys(objCollection.lights);
             for(let lightsKey in objCollection.lights) {
-                const light = objCollection.lights[lightsKey].light;
+                let light = objCollection.lights[lightsKey].light;
                 const lightOverride = objCollection.lights[lightsKey].override;
-                if(lightOverride){
-                    this.override(light, lightOverride);
-                }
                 light.name = lightsKey;
+                if(lightOverride){
+                    const newLight = this.override(light, lightOverride);
+                    if(newLight instanceof THREE.Light){
+                        light = newLight;
+                    }
+                }
                 scene.add(light);
             }
         }
         //setup meshes
         if(objCollection.meshes){
             for(let meshesKey in objCollection.meshes) {
-                const mesh = objCollection.meshes[meshesKey].mesh;
+                let mesh = objCollection.meshes[meshesKey].mesh;
                 const meshOverride = objCollection.meshes[meshesKey].override;
-                if(meshOverride){
-                    this.override(mesh, meshOverride);
-                };
                 mesh.name = meshesKey;
+                if(meshOverride){
+                    const newMesh = this.override(mesh, meshOverride);
+                    if(newMesh instanceof THREE.Mesh){
+                        mesh = newMesh;
+                    }
+                };
                 scene.add(mesh);
             }
         }
         //setup file loading (async)
-        this.loadFromFile(objCollection.fromFiles);
+        this.loadPromises = this.loadFromFile(objCollection.fromFiles);
+        this.loadPromises.forEach((loadPromise) => {
+            loadPromise.then((obj) => {
+                console.log('Loading of file complete:', obj);
+                this.scene?.add(obj);
+            })
+        });
 
         return {scene, newCollection};   
     };
 
-    override : (obj: THREE.Object3D, overrides: ObjectOverride) => (THREE.Object3D) = (obj, overrides) => {
+    override : (obj: THREE.Object3D, overrides: ObjectOverride, group?: THREE.Group) => (THREE.Object3D) = (obj, overrides, group) => {
+        const originalObj = obj;
+        obj = obj.clone();
         //TODO: mit dummy und set matrix lösen?
         Object.keys(overrides).forEach((override: string) => {
-            const overrideValue: THREE.Vector3 | THREE.Euler | number | THREE.Material | ((mesh: THREE.Mesh) => {iMesh: THREE.InstancedMesh}) | undefined = overrides[override as keyof typeof overrides];
+            const overrideValue: THREE.Vector3 | THREE.Euler | number | THREE.Material | ((mesh: THREE.Mesh) => (THREE.InstancedMesh)) | undefined = overrides[override as keyof typeof overrides];
             if(overrideValue === undefined){
                 console.error('Override value is undefined for ', override, ' in ', overrides);
                 return;
@@ -347,7 +509,8 @@ class Experience {
                 case 'makeInstance': {
                     if(typeof overrideValue === 'function'){
                         if(obj instanceof THREE.Mesh){
-                            obj = overrideValue(obj).iMesh;
+                            obj = overrideValue(obj);
+                            obj.name = originalObj.name;
                         } else {
                             console.error('Could not convert ', obj, ' to THREE.InstancedMesh since it is not an instance of THREE.Mesh');
                         }
@@ -360,11 +523,15 @@ class Experience {
 
             }
         });
+        if(group){
+            group.remove(originalObj);
+            group.add(obj);
+        }
+        console.log('Override for ', originalObj.name, ':', originalObj, obj);
         return obj;
     }
 
-    loadFromFile: (this: Experience, fromFiles: ObjectCollection["fromFiles"]) => (Promise<THREE.Object3D>[]) = (fromFiles) => {
-
+    loadFromFile: (fromFiles: ObjectCollection["fromFiles"]) => (Promise<THREE.Object3D>[]) = (fromFiles) => {
         if(!fromFiles){
             return [];
         }
@@ -375,7 +542,7 @@ class Experience {
                 loaders[fromFile.loader] = loaderTemplates[fromFile.loader].loaderFactory();
             }
             loadPromises.push(
-                loaderTemplates[fromFile.loader].handler(loaders[fromFile.loader], fromFile, this)
+                loaderTemplates[fromFile.loader].handler(loaders[fromFile.loader], fromFile, this, fromFilesKey)
             );
         }
         return loadPromises;
@@ -383,4 +550,4 @@ class Experience {
 
 }
 
-export {Experience, ExperienceSettings, RenderOptions, ObjectCollection}
+export {Experience, ExperienceSettings, RenderOptions, ObjectCollection, ObjectOverride}
