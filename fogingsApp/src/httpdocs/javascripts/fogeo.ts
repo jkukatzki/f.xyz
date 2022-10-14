@@ -54,9 +54,11 @@ const GUIPresets: {[key: string]: GUICreator} = {
                             if(activeObject !== child){
                                 activeObject = child;
                                 for(let objectSelectorButtonsKey in objectSelectorButtons){
-                                    objectSelectorButtons[objectSelectorButtonsKey].setInactive();
+                                    if(objectSelectorButtonsKey !== child.name){
+                                        objectSelectorButtons[objectSelectorButtonsKey].domElement.classList.remove('fogeo-objectoutliner-selected')
+                                    }
                                 }
-                                objectSelectorButtons[child.name].setActive();
+                                objectSelectorButtons[child.name].domElement.classList.add('fogeo-objectoutliner-selected');
                                 
                                 //POSITION
     
@@ -104,25 +106,16 @@ const GUIPresets: {[key: string]: GUICreator} = {
             }
             //start from top of tree
             createButtonsFromObjects(objs, objectsFolder);
-            
-            //set functions for controls
-            //object select buttons:
-            for(let objectSelectorButtonsKey in objectSelectorButtons){
-                const control = objectSelectorButtons[objectSelectorButtonsKey];
-                control.setActive = () => {
-                    control.domElement.classList.add('control-inactive');//'fogeo-objectoutliner-inactive');
-                };
-                control.setInactive = () => {
-                    control.domElement.classList.remove('control-inactive')
-                }
-            };
-
             //set first object as default selected: //TODO: do this differently, put controller creation in seperate function and call here
-            setTimeout(() => { $(Object.entries(objectSelectorButtons)[0][1].domElement).find('button').trigger('click'); }, 100);
+            setTimeout(() => { $(Object.entries(objectSelectorButtons)[0][1].domElement).find('button').trigger('click'); }, 1);
         },
-        styles: `.fogeo-objectoutliner-group > .children > .controller > .widget > button {
+        styles: `
+        .fogeo-objectoutliner-group > .children > .controller > .widget > button {
             text-align: left;
             padding-left: 0.5em;
+        }
+        .fogeo-objectoutliner-selected > .widget {
+            border: 1px solid white;
         }
         `
     }
