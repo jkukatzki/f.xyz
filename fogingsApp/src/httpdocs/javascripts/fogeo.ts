@@ -308,8 +308,6 @@ class Experience {
         if(settings.renderOptions.clearColor){
             this.renderer.setClearColor(settings.renderOptions.clearColor[0], settings.renderOptions.clearColor[1]);
         };
-        document.querySelector(this.renderOptions.elSelector)?.appendChild(this.renderer.domElement);
-
         if(settings.geometryModifiers){
             this.geometryModifiers = settings.geometryModifiers;
         }

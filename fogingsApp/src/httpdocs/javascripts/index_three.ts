@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { GUI } from 'lil-gui';
 import * as FOGEO from './fogeo.js';
 
 let backgroundGridSettings: FOGEO.ExperienceSettings = {

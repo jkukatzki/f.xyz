@@ -3,8 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "start": "nodemon ./bin/www",
-        "watch": "nodemon"
+        "start": "nodemon ./bin/www"
     },
     "dependencies": {
         "cookie-parser": "~1.4.4",
@@ -17,6 +16,8 @@
 
         "es-module-shims": "^1.5.18",
         "three": "^0.144.0",
+        
+
         "jquery": "^3.6.1",
         "lil-gui": "^0.17.0"
     }
