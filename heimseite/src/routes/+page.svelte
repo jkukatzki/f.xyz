@@ -1,30 +1,51 @@
 <script lang="ts">
-    import {onMount} from 'svelte';
+
+    import { Experience } from '$lib/components/fogeo/fogeo'; 
+
 	import WavyGrid from '$lib/components/experiences/background/WavyGrid.svelte';
-    import {Canvas} from '@threlte/core';
+    import SpinningStuff from '$lib/components/experiences/title/SpinningStuff.svelte';
+
+    
+	import * as THREE from 'three';
+	import { onMount } from 'svelte';
     let titleLogoSrc = '/images/title/gothic_tag_logo.png';
     let titleVideoSrc = '/videos/cat_low.mp4';
-    let backgroundSize = {width: 100, height: 100}
+
+    let pausedTitle: boolean = true;
+
+    const globalPointer = new THREE.Vector2(0.5, 0.5);
     onMount(() => {
-        //render sizes
-        backgroundSize = {width: window.innerWidth, height: window.innerHeight}
-        
+        document.addEventListener('mousemove', (e) => {
+            globalPointer.set(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
+            console.log(globalPointer);
+        });
     });
+    
+
 </script>
 
 <div id="background-threejs-render">
-    <Canvas size={backgroundSize}>
-        <WavyGrid></WavyGrid>
-    </Canvas>
+    <Experience>
+        <WavyGrid globalPointer={globalPointer}></WavyGrid>
+    </Experience>
 </div>
 <div id="front">
     <div id="title">
         <div id="title-threejs-aspect-wrapper">
             <div id="title-threejs-render">
+                <div style="position:absolute; width:100%; height:100%">
+                    <Experience studio={true}>
+                        <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new THREE.Vector3(0, 0, 0)} lineEnd={new THREE.Vector3(1, 0, 1)}></SpinningStuff>
+                    </Experience>
+                </div>
+                <!--'e.currentTarget.paused = false?'-->
                 <video 
                 id="title-middle-video"
                 class="cat-mask"
-                loop muted disableRemotePlayback>
+                loop muted disableRemotePlayback
+                bind:paused={pausedTitle}
+                on:mouseenter={(e) => {pausedTitle = false}}
+                on:mouseleave={(e) => {pausedTitle = true}}>
                     <source src="{titleVideoSrc}" type="video/mp4">
                 </video>
                 <img alt="fogings" class="logo" src="{titleLogoSrc}">
@@ -58,11 +79,13 @@
   }
   #background-threejs-render {
       position: fixed;
+      width: 100%;
+      height: 100%;
       z-index: -1;
   }
 
   #front {
-      width: 85%;
+      width: 90%;
       margin: auto;
       margin-top: 5em;
       padding-bottom: 5em;
@@ -86,7 +109,7 @@
   }
 
   #title-middle-video {
-      cursor: none;
+      cursor: crosshair;
       height: 70%;
       left: 50%;
       top: 50%;
