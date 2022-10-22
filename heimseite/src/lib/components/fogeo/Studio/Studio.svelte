@@ -16,6 +16,31 @@
         outlinerPane = new Pane();
         objectsFolder = outlinerPane.addFolder({title: 'Objects', expanded: true});
         propertiesFolder = outlinerPane.addFolder({title: 'Properties'});
+        const propertiesSegments: {
+            [key: string]: {
+                children: {[key:string]: any},
+                folder: FolderApi | undefined
+            }
+        } = {
+            'Object Properties': { children: { 'Transform': { children: {'Position': {}, 'Rotation': {}, 'Scale': {}}, folder: undefined} }, folder: undefined },
+            'Material Properties' : { children: {'Surface' : {folder: undefined}}, folder: undefined}
+        }
+        //TODO: make recursive
+        let expand = true;
+        for(let key in propertiesSegments){
+            console.log('ADDING FOLDER TO PROPERTIES', key);
+            propertiesSegments[key].folder = propertiesFolder.addFolder({title: key, expanded: expand});
+            if(Object.keys(propertiesSegments[key].children).length > 0){
+                for(let key2 in propertiesSegments[key].children){
+                    propertiesSegments[key].children[key2].folder = propertiesSegments[key].folder?.addFolder({title: key2, expanded: expand});
+                    for(let key3 in propertiesSegments[key].children[key2].children){
+                        propertiesSegments[key].children[key2].folder.addFolder({title: key3, expanded: expand})
+                        expand = false;
+                    }
+                    
+                }
+            }
+        }
     });
     export const studio = {
         createOutliner : function(){
@@ -52,7 +77,6 @@
                 console.log('Traversing group for UI elms:', group.children);
                 for(let i=0; i<group.children.length; i++){
                     const groupChild = group.children[i];
-                    console.log('groupChild!!!!!!',groupChild);
                     checkForAndCreateUniqueName(group.children[i]);;
                     if(groupChild instanceof THREE.Group){
                         console.log('groupChild is a group');

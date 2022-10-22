@@ -30,7 +30,7 @@
     {#if studio}
         <Studio objects={experienceScene} bind:studio={studioHandler}></Studio>
         <ContextBridge bind:ctx />
-        <HierarchicalObject object={experienceScene} onChildMount={(child) => {experienceScene.add(child); console.log('child!!!', child); studioHandler.createOutliner()}} onChildDestroy={(child) => experienceScene.remove(child)}>
+        <HierarchicalObject object={experienceScene} onChildMount={(child) => {experienceScene.add(child); console.log('child!!!', child); if(studioHandler){studioHandler.createOutliner()} }} onChildDestroy={(child) => experienceScene.remove(child)}>
             <slot></slot>
         </HierarchicalObject>
     {:else}
