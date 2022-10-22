@@ -8,7 +8,7 @@
     import Studio from './Studio/Studio.svelte';
 
     export let studio = false;
-    let studioHandler: {create: () => void};
+    let studioHandler: {createOutliner: () => void};
 
     let ctx: ThrelteContext;
     let experienceScene: THREE.Object3D = new THREE.Object3D();
@@ -30,7 +30,7 @@
     {#if studio}
         <Studio objects={experienceScene} bind:studio={studioHandler}></Studio>
         <ContextBridge bind:ctx />
-        <HierarchicalObject object={experienceScene} onChildMount={(child) => {experienceScene.add(child); console.log('child!!!', child); studioHandler.create()}} onChildDestroy={(child) => experienceScene.remove(child)}>
+        <HierarchicalObject object={experienceScene} onChildMount={(child) => {experienceScene.add(child); console.log('child!!!', child); studioHandler.createOutliner()}} onChildDestroy={(child) => experienceScene.remove(child)}>
             <slot></slot>
         </HierarchicalObject>
     {:else}

@@ -1,22 +1,33 @@
 <script lang="ts">
 	import { useThrelte } from '@threlte/core';
 	import type { BladeApi, FolderApi } from '@tweakpane/core';
+	import { onMount } from 'svelte';
 	import * as THREE from 'three';
     import { Pane } from 'tweakpane';
 
     export let objects: THREE.Object3D;
-    let top: number;
-    export const studio = {
-        create : function(){
-            console.log('Creating Studio from Objects:', objects);
-            const outlinerPane = new Pane();
-            outlinerPane.element.parentElement?.setAttribute('style', "top: "+top+"px")
-            outlinerPane.addFolder({title: 'Objects', expanded: true});
 
+    
+    let top: number;
+    let outlinerPane: Pane;
+    let objectsFolder: FolderApi; 
+    let propertiesFolder: FolderApi;
+    onMount(() => {
+        outlinerPane = new Pane();
+        objectsFolder = outlinerPane.addFolder({title: 'Objects', expanded: true});
+        propertiesFolder = outlinerPane.addFolder({title: 'Properties'});
+    });
+    export const studio = {
+        createOutliner : function(){
+            if(!outlinerPane){
+                return;
+            }
+            console.log('Creating Studio from Objects:', objects);
+            outlinerPane.element.parentElement?.setAttribute('style', "top: "+top+"px")
             console.log('Context Scene:', objects);
+
             const unnamedObjectsRegister: {[key: string]: number} = {};
             const namedObjectsRegister: string[] = [];
-
             function checkForAndCreateUniqueName(obj: THREE.Object3D){
                 if(!obj.name){
                     if(!unnamedObjectsRegister[obj.type]){
@@ -35,6 +46,7 @@
                 }
                 namedObjectsRegister.push(obj.name);
             }
+
             //TODO: instead of ev: any ev: TpEvent is suggested, cant get it to be imported though, might be wrong type defintions for tweakpane. - TpChangeEvent exists...
             function createButtonBladesGroupTraversal(group: THREE.Object3D, segmentToAddTo: Pane | FolderApi){
                 console.log('Traversing group for UI elms:', group.children);
@@ -52,15 +64,19 @@
                 }
                 
             }
-            createButtonBladesGroupTraversal(objects, outlinerPane);
+            createButtonBladesGroupTraversal(objects, objectsFolder);
         }
     };
+
+    function createTransformMenu(obj: THREE.Object3D){
+
+    }
 
     let currentObjects: THREE.Object3D;
     const { renderer } = useThrelte();
     $: if(objects && renderer){
         currentObjects = objects;
         top = renderer.domElement.getBoundingClientRect().y;
-        studio.create();
+        studio.createOutliner();
     }
 </script>
