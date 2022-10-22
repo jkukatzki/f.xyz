@@ -70,7 +70,7 @@
     </p>
     <div id="showcase-threejs-aspect-wrapper">
         <div id="showcase-threejs-render">
-            <Experience>
+            <Experience studio={true}>
                 <PerspectiveCamera fov={40} position={{x: 4, y: 4, z: 2}} rotation={{x: 0, y: THREE.MathUtils.degToRad(70)}}>
                 	<OrbitControls enablePan={false} enableZoom={false} enableDamping/>
                 </PerspectiveCamera>

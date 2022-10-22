@@ -11,7 +11,7 @@ const config = {
 		adapter: adapter()
 	},
 	ssr: {
-		noExternal: ['three', 'troika-three-text']
+		noExternal: ['three', 'troika-three-text', 'tweakpane']
 	}
 };
 

@@ -19,7 +19,7 @@
         actions['idle']?.play();
     });
 
-    $: console.log($gltf);
+    $: console.log('gltf:',$gltf);
 
     
     

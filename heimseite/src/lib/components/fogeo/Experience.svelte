@@ -1,20 +1,43 @@
 
 <script lang="ts">
-    import { Canvas, ContextBridge, type ThrelteContext} from '@threlte/core';
-	import { HTML } from '@threlte/extras';
+    import { Canvas, ContextBridge, HierarchicalObject, type ThrelteContext} from '@threlte/core';
+	import { onMount } from 'svelte';
+	import * as THREE from 'three';
+	import { useProgress } from '@threlte/extras';
+
+    import Studio from './Studio/Studio.svelte';
 
     export let studio = false;
-    let ctx: ThrelteContext;
+    let studioHandler: {create: () => void};
 
+    let ctx: ThrelteContext;
+    let experienceScene: THREE.Object3D = new THREE.Object3D();
+    const { active } = useProgress();
     
 
-    $: if(studio && ctx) constructStudio();
+    onMount(() => {
+        // @ts-ignore
+       window.navigator.requestMIDIAccess();
+    });
 
+   $: if(ctx) {experienceScene = ctx.scene}
+    
+   
 </script>
 
+
 <Canvas>
-    <ContextBridge bind:ctx />
-    <slot></slot>
+    {#if studio}
+        <Studio objects={experienceScene} bind:studio={studioHandler}></Studio>
+        <ContextBridge bind:ctx />
+        <HierarchicalObject object={experienceScene} onChildMount={(child) => {experienceScene.add(child); console.log('child!!!', child); studioHandler.create()}} onChildDestroy={(child) => experienceScene.remove(child)}>
+            <slot></slot>
+        </HierarchicalObject>
+    {:else}
+        <slot></slot>
+    {/if}
+    
+    
 </Canvas>
 
 
