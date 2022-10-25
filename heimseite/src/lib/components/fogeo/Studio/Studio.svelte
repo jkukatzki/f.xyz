@@ -1,0 +1,119 @@
+<script lang="ts">
+	import { useThrelte, type ThrelteContext } from '@threlte/core';
+	import type { BladeApi, FolderApi } from '@tweakpane/core';
+	import { onMount } from 'svelte';
+	import * as THREE from 'three';
+    import { Pane } from 'tweakpane';
+
+    export let ctx: ThrelteContext;
+
+    
+    let top: number;
+    let outlinerPane: Pane;
+    let propertiesFolder: FolderApi;
+
+    const editors: {[key: string]: Function } = {
+        outliner: (parent: THREE.Object3D, pane: Pane): Pane => {
+            pane.title = 'Outliner'
+            let objectsFolder: FolderApi = pane.addFolder({title: 'Objects', expanded: true});
+            
+            return pane
+        }
+    }
+
+    const workspaces = {
+        'layout': {
+            panes: []
+        }
+    }
+
+    onMount(() => {
+        outlinerPane = new Pane();
+        objectsFolder = outlinerPane.addFolder({title: 'Objects', expanded: true});
+        propertiesFolder = outlinerPane.addFolder({title: 'Properties'});
+        const propertiesSegments: {
+            [key: string]: {
+                children: {[key:string]: any},
+                folder: FolderApi | undefined
+            }
+        } = {
+            'Object Properties': { children: { 'Transform': { children: {'Position': {}, 'Rotation': {}, 'Scale': {}}, folder: undefined} }, folder: undefined },
+            'Material Properties' : { children: {'Surface' : {folder: undefined}}, folder: undefined}
+        }
+        //TODO: make recursive
+        let expand = true;
+        for(let key in propertiesSegments){
+            console.log('ADDING FOLDER TO PROPERTIES', key);
+            propertiesSegments[key].folder = propertiesFolder.addFolder({title: key, expanded: expand});
+            if(Object.keys(propertiesSegments[key].children).length > 0){
+                for(let key2 in propertiesSegments[key].children){
+                    propertiesSegments[key].children[key2].folder = propertiesSegments[key].folder?.addFolder({title: key2, expanded: expand});
+                    for(let key3 in propertiesSegments[key].children[key2].children){
+                        propertiesSegments[key].children[key2].folder.addFolder({title: key3, expanded: expand})
+                        expand = false;
+                    }
+                    
+                }
+            }
+        }
+    });
+    export const studio = {
+        createOutliner : function(objects: THREE.Object3D){
+            if(!outlinerPane){
+                return;
+            }
+            outlinerPane.element.parentElement?.setAttribute('style', "top: "+top+"px")
+            console.log('Context Scene:', objects);
+
+            const unnamedObjectsRegister: {[key: string]: number} = {};
+            const namedObjectsRegister: string[] = [];
+            function checkForAndCreateUniqueName(obj: THREE.Object3D){
+                if(!obj.name){
+                    if(!unnamedObjectsRegister[obj.type]){
+                        obj.name = obj.type;
+                        unnamedObjectsRegister[obj.type] = 0;
+                    } else {
+                        unnamedObjectsRegister[obj.type]++;
+                        obj.name = obj.type+"_"+unnamedObjectsRegister[obj.type];
+                    }
+                }
+                if(namedObjectsRegister.includes(obj.name)){
+                    obj.name = obj.name+"_0"
+                }
+                while(namedObjectsRegister.includes(obj.name)){
+                    obj.name = obj.name.slice(0, -1)+parseInt(obj.name[obj.name.length])+1;
+                }
+                namedObjectsRegister.push(obj.name);
+            }
+
+            //TODO: instead of ev: any ev: TpEvent is suggested, cant get it to be imported though, might be wrong type defintions for tweakpane. - TpChangeEvent exists...
+            function createButtonBladesGroupTraversal(group: THREE.Object3D, segmentToAddTo: Pane | FolderApi){
+                console.log('Traversing group for UI elms:', group.children);
+                for(let i=0; i<group.children.length; i++){
+                    const groupChild = group.children[i];
+                    checkForAndCreateUniqueName(group.children[i]);;
+                    if(groupChild instanceof THREE.Group){
+                        console.log('groupChild is a group');
+                        const newFolder = segmentToAddTo.addFolder({title: groupChild.name});
+                        createButtonBladesGroupTraversal(groupChild, newFolder);
+                    } else {
+                        segmentToAddTo.addButton({title: group.children[i].name}).on('click', () => console.log(groupChild));
+                    }
+                }
+                
+            }
+            console.log('Creating UI from ', objects );
+            createButtonBladesGroupTraversal(objects, objectsFolder);
+        }
+    };
+
+    function createTransformMenu(obj: THREE.Object3D){
+
+    }
+
+    let currentObjects: THREE.Object3D;
+    const { renderer } = useThrelte();
+    $: if(renderer){
+        top = renderer.domElement.getBoundingClientRect().y;
+    }
+</script>

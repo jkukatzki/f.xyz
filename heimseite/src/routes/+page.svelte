@@ -4,10 +4,14 @@
 
 	import WavyGrid from '$lib/components/experiences/background/WavyGrid.svelte';
     import SpinningStuff from '$lib/components/experiences/title/SpinningStuff.svelte';
+    import Desk from '$lib/components/experiences/showcase/Desk.svelte';
 
+
+    import { PerspectiveCamera, PointLight, SpotLight, AmbientLight, OrbitControls} from '@threlte/core';
     
-	import { Vector2, Vector3 } from 'three';
+	import * as THREE from 'three';
 	import { onMount } from 'svelte';
+
     let titleLogoSrc = '/images/title/gothic_tag_logo.png';
     let titleVideoSrc = '/videos/cat_low.mp4';
 
@@ -17,11 +21,9 @@
     onMount(() => {
         document.addEventListener('mousemove', (e) => {
             globalPointer.set(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
-            console.log(globalPointer);
         });
     });
     
-
 </script>
 
 <div id="background-threejs-render">
@@ -34,8 +36,12 @@
         <div id="title-threejs-aspect-wrapper">
             <div id="title-threejs-render">
                 <div style="position:absolute; width:100%; height:100%">
-                    <Experience studio={true}>
-                        <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new Vector3(0, 0, 0)} lineEnd={new Vector3(1, 0, 1)}></SpinningStuff>
+                    <Experience>
+                        <PerspectiveCamera fov={83} position={{ x: 0, y: 0, z: 1.55 }}/>
+                        <PointLight color={"#ff9cd7"} intensity={(pausedTitle ? 0.5 : 0.3)} distance={100} position={{ z: -0.5 }} />
+                        <PointLight color={"blue"} intensity={0.3} distance={100} position={{z: -5}} />
+                        <SpotLight color={"white"} intensity={0.15} distance={60} position={{z: 5}} angle={2}></SpotLight>
+                        <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new THREE.Vector3(1.2, 0, 0)} lineEnd={new THREE.Vector3(4.8, 0, -1.3)} globalPointer={globalPointer}></SpinningStuff>
                     </Experience>
                 </div>
                 <!--'e.currentTarget.paused = false?'-->
@@ -63,7 +69,14 @@
         dings 3D ist cool und so lorem ipsum mipsum forum salve sklave christus sheeshstus silentium por favor blalnalbllalllalallalbllblbubububuufuf
     </p>
     <div id="showcase-threejs-aspect-wrapper">
-        <div id="showcase-threejs-render"></div>
+        <div id="showcase-threejs-render">
+            <Experience studio={true}>
+                <PerspectiveCamera fov={40} position={{x: 4, y: 4, z: 2}} rotation={{x: 0, y: THREE.MathUtils.degToRad(70)}}>
+                	<OrbitControls enablePan={false} enableZoom={false} enableDamping/>
+                </PerspectiveCamera>
+                <Desk></Desk>
+            </Experience>
+        </div>
     </div>
 </div>
 
