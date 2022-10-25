@@ -1,17 +1,32 @@
 <script lang="ts">
-	import { useThrelte } from '@threlte/core';
+	import { useThrelte, type ThrelteContext } from '@threlte/core';
 	import type { BladeApi, FolderApi } from '@tweakpane/core';
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
     import { Pane } from 'tweakpane';
 
-    export let objects: THREE.Object3D;
+    export let ctx: ThrelteContext;
 
     
     let top: number;
     let outlinerPane: Pane;
-    let objectsFolder: FolderApi; 
     let propertiesFolder: FolderApi;
+
+    const editors: {[key: string]: Function } = {
+        outliner: (parent: THREE.Object3D, pane: Pane): Pane => {
+            pane.title = 'Outliner'
+            let objectsFolder: FolderApi = pane.addFolder({title: 'Objects', expanded: true});
+            
+            return pane
+        }
+    }
+
+    const workspaces = {
+        'layout': {
+            panes: []
+        }
+    }
+
     onMount(() => {
         outlinerPane = new Pane();
         objectsFolder = outlinerPane.addFolder({title: 'Objects', expanded: true});
@@ -43,11 +58,10 @@
         }
     });
     export const studio = {
-        createOutliner : function(){
+        createOutliner : function(objects: THREE.Object3D){
             if(!outlinerPane){
                 return;
             }
-            console.log('Creating Studio from Objects:', objects);
             outlinerPane.element.parentElement?.setAttribute('style', "top: "+top+"px")
             console.log('Context Scene:', objects);
 
@@ -88,6 +102,7 @@
                 }
                 
             }
+            console.log('Creating UI from ', objects );
             createButtonBladesGroupTraversal(objects, objectsFolder);
         }
     };
@@ -98,9 +113,7 @@
 
     let currentObjects: THREE.Object3D;
     const { renderer } = useThrelte();
-    $: if(objects && renderer){
-        currentObjects = objects;
+    $: if(renderer){
         top = renderer.domElement.getBoundingClientRect().y;
-        studio.createOutliner();
     }
 </script>
