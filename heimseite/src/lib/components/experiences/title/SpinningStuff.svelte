@@ -59,4 +59,6 @@
             {/each}
         </InstancedMesh>
     </InstancedMesh>
+{:else }
+<InstancedMesh geometry={placeholder.geometry} 
 {/if}
