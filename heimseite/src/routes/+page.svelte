@@ -6,14 +6,14 @@
     import SpinningStuff from '$lib/components/experiences/title/SpinningStuff.svelte';
 
     
-	import * as THREE from 'three';
+	import { Vector2, Vector3 } from 'three';
 	import { onMount } from 'svelte';
     let titleLogoSrc = '/images/title/gothic_tag_logo.png';
     let titleVideoSrc = '/videos/cat_low.mp4';
 
     let pausedTitle: boolean = true;
 
-    const globalPointer = new THREE.Vector2(0.5, 0.5);
+    const globalPointer = new Vector2(0.5, 0.5);
     onMount(() => {
         document.addEventListener('mousemove', (e) => {
             globalPointer.set(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
@@ -35,7 +35,7 @@
             <div id="title-threejs-render">
                 <div style="position:absolute; width:100%; height:100%">
                     <Experience studio={true}>
-                        <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new THREE.Vector3(0, 0, 0)} lineEnd={new THREE.Vector3(1, 0, 1)}></SpinningStuff>
+                        <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new Vector3(0, 0, 0)} lineEnd={new Vector3(1, 0, 1)}></SpinningStuff>
                     </Experience>
                 </div>
                 <!--'e.currentTarget.paused = false?'-->

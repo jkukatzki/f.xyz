@@ -27,9 +27,8 @@
         geo.attributes.position.needsUpdate = true;
     });
     
-    
-    
 </script>
+
 <Fog color={'rgb(0,0,0)'} near={0} far={25}></Fog>
 <PerspectiveCamera fov={90} position={{x:0, y:3, z:15}}></PerspectiveCamera>
 <PointLight color={'pink'} intensity={4} distance={55} position={{y:50}}></PointLight>
