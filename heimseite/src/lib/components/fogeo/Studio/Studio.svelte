@@ -1,119 +1,155 @@
 <script lang="ts">
-	import { useThrelte, type ThrelteContext } from '@threlte/core';
-	import type { BladeApi, FolderApi } from '@tweakpane/core';
-	import { onMount } from 'svelte';
-	import * as THREE from 'three';
-    import { Pane } from 'tweakpane';
+	import type { ThrelteContext } from "@threlte/core";
+    import Grid from "svelte-grid";
+    import gridHelp from "svelte-grid/build/helper/index.mjs";
 
+	import Editor from "./Editor.svelte";
+
+    export let workspace: string;
     export let ctx: ThrelteContext;
-
-    
-    let top: number;
-    let outlinerPane: Pane;
-    let propertiesFolder: FolderApi;
-
-    const editors: {[key: string]: Function } = {
-        outliner: (parent: THREE.Object3D, pane: Pane): Pane => {
-            pane.title = 'Outliner'
-            let objectsFolder: FolderApi = pane.addFolder({title: 'Objects', expanded: true});
-            
-            return pane
-        }
-    }
-
-    const workspaces = {
-        'layout': {
-            panes: []
-        }
-    }
-
-    onMount(() => {
-        outlinerPane = new Pane();
-        objectsFolder = outlinerPane.addFolder({title: 'Objects', expanded: true});
-        propertiesFolder = outlinerPane.addFolder({title: 'Properties'});
-        const propertiesSegments: {
-            [key: string]: {
-                children: {[key:string]: any},
-                folder: FolderApi | undefined
-            }
-        } = {
-            'Object Properties': { children: { 'Transform': { children: {'Position': {}, 'Rotation': {}, 'Scale': {}}, folder: undefined} }, folder: undefined },
-            'Material Properties' : { children: {'Surface' : {folder: undefined}}, folder: undefined}
-        }
-        //TODO: make recursive
-        let expand = true;
-        for(let key in propertiesSegments){
-            console.log('ADDING FOLDER TO PROPERTIES', key);
-            propertiesSegments[key].folder = propertiesFolder.addFolder({title: key, expanded: expand});
-            if(Object.keys(propertiesSegments[key].children).length > 0){
-                for(let key2 in propertiesSegments[key].children){
-                    propertiesSegments[key].children[key2].folder = propertiesSegments[key].folder?.addFolder({title: key2, expanded: expand});
-                    for(let key3 in propertiesSegments[key].children[key2].children){
-                        propertiesSegments[key].children[key2].folder.addFolder({title: key3, expanded: expand})
-                        expand = false;
-                    }
-                    
-                }
-            }
-        }
-    });
     export const studio = {
-        createOutliner : function(objects: THREE.Object3D){
-            if(!outlinerPane){
-                return;
-            }
-            outlinerPane.element.parentElement?.setAttribute('style', "top: "+top+"px")
-            console.log('Context Scene:', objects);
-
-            const unnamedObjectsRegister: {[key: string]: number} = {};
-            const namedObjectsRegister: string[] = [];
-            function checkForAndCreateUniqueName(obj: THREE.Object3D){
-                if(!obj.name){
-                    if(!unnamedObjectsRegister[obj.type]){
-                        obj.name = obj.type;
-                        unnamedObjectsRegister[obj.type] = 0;
-                    } else {
-                        unnamedObjectsRegister[obj.type]++;
-                        obj.name = obj.type+"_"+unnamedObjectsRegister[obj.type];
+        sceneGraphUpdate: () => {
+            for(let windowID in windows){
+                const editorInstances = windows[windowID].editorInstances;
+                for(let editorInstancesKey in editorInstances){
+                    const editorInstance = editorInstances[editorInstancesKey];
+                    console.log('Editor instance checking if it needs update bcecause scene updated', editorInstance)
+                    if(editorInstance.props.redrawOnSceneGraphUpdate){
+                        console.log('Redrawing because of scene graph update...');
+                        editorInstance.draw();
                     }
                 }
-                if(namedObjectsRegister.includes(obj.name)){
-                    obj.name = obj.name+"_0"
-                }
-                while(namedObjectsRegister.includes(obj.name)){
-                    obj.name = obj.name.slice(0, -1)+parseInt(obj.name[obj.name.length])+1;
-                }
-                namedObjectsRegister.push(obj.name);
             }
-
-            //TODO: instead of ev: any ev: TpEvent is suggested, cant get it to be imported though, might be wrong type defintions for tweakpane. - TpChangeEvent exists...
-            function createButtonBladesGroupTraversal(group: THREE.Object3D, segmentToAddTo: Pane | FolderApi){
-                console.log('Traversing group for UI elms:', group.children);
-                for(let i=0; i<group.children.length; i++){
-                    const groupChild = group.children[i];
-                    checkForAndCreateUniqueName(group.children[i]);;
-                    if(groupChild instanceof THREE.Group){
-                        console.log('groupChild is a group');
-                        const newFolder = segmentToAddTo.addFolder({title: groupChild.name});
-                        createButtonBladesGroupTraversal(groupChild, newFolder);
-                    } else {
-                        segmentToAddTo.addButton({title: group.children[i].name}).on('click', () => console.log(groupChild));
+        },
+        selectedObjUpdate: () => {
+            for(let windowID in windows){
+                const editorInstances = windows[windowID].editorInstances;
+                for(let editorInstancesKey in editorInstances){
+                    const editorInstance = editorInstances[editorInstancesKey];
+                    if(editorInstance.props.redrawOnSelectedObjUpdate){
+                        editorInstance.draw();
                     }
                 }
-                
             }
-            console.log('Creating UI from ', objects );
-            createButtonBladesGroupTraversal(objects, objectsFolder);
+        },
+        handleChildMount: (child: THREE.Object3D) => {
+            console.log('Handling child mount for FOGEO:Studio');
+            let newName = child.name ? child.name : typeof child;
+
+            let count = 0;
+            const findAndIncreaseCount = (name: string, scene: THREE.Scene) => {
+                if(scene.getObjectByName(name)){
+                    count++;
+                    findAndIncreaseCount(name+"_"+count, scene);
+                } else {
+                    child.name = name+"_"+count;
+                }
+            }
+            findAndIncreaseCount(newName, ctx.scene);
+            ctx.scene.add(child);
         }
-    };
-
-    function createTransformMenu(obj: THREE.Object3D){
-
     }
 
-    let currentObjects: THREE.Object3D;
-    const { renderer } = useThrelte();
-    $: if(renderer){
-        top = renderer.domElement.getBoundingClientRect().y;
+    const COLS = 12;
+    const cols = [[1800, 12], [1200, 6]]
+
+    let items: any[];
+
+    interface Workspace {
+        windows: any
     }
+    const workspaces: { [key: string]: Workspace } = {
+        layout: {
+            windows: [
+                {
+                    [COLS]: gridHelp.item({
+                        x: 0,
+                        y: 0,
+                        w: 2,
+                        h: 4,
+                        customDragger: true
+                    }),
+                    id: 'right',
+                    data: {
+                        editors: ['outliner', 'properties']
+                    }
+                }
+            ]
+        }
+    }
+    let fullscreenStudioContainer;
+    let windows: { [key: string]: { editorInstances: {[key:number]: any} } };
+    let currentWorkspace: string;
+    $: if(workspace && workspace !== currentWorkspace) {
+        currentWorkspace = workspace;
+        items = workspaces[workspace].windows;
+        if(!windows){
+            windows = {};
+        }
+        items.forEach((item) => {
+            if(!windows[item.id]){
+                windows[item.id] = {editorInstances: {}};
+            }
+        });
+        console.log('Studio.svelte -> setting items for workspace: ', workspace, ' items:', items, ' windows:', windows);
+    }
+
 </script>
+
+{#if items && windows}
+    <div class="fogeo-studio-fullscreen-fixed" bind:this={fullscreenStudioContainer}>
+        I'm a studio!
+        <Grid scroller={fullscreenStudioContainer} bind:items={items} cols={cols} rowHeight={100}  let:item let:dataItem let:movePointerDown>
+            <div class="studio-window-dragger" on:pointerdown={movePointerDown}>============</div>
+            <div class="studio-window-wrapper">
+                {#each dataItem.data.editors as editor, index }
+                    <Editor studio={studio} ctx={ctx} bind:editorInstance={windows[dataItem.id].editorInstances[index]} editor={editor}></Editor>  
+                {/each}
+            </div>
+            
+        </Grid>
+    </div>
+{/if}
+
+<style>
+    .fogeo-studio-fullscreen-fixed {
+        position: fixed;
+        background-color: rgba(0,0,0,0.2);
+        color: white;
+        top: 0;
+        left: 0;
+        width: 99vw;
+        height: 99vh;
+
+    }
+
+    :global(.svlt-grid-shadow) {
+        background: navy;
+        bottom: -1em;
+    }
+
+    :global(.svlt-grid-item) {
+        padding-top: 1em;
+    }
+
+    :global(.svlt-grid-resizer){
+        bottom: -1em !important;
+    }
+
+
+
+    .studio-window-wrapper {
+        background-color: darkgray;
+        overflow: auto;
+        height: 100%;
+        padding-top: 1em;
+    }
+
+    .studio-window-dragger {
+        background-color: rgb(0, 0, 0);
+        cursor: grab;
+        width: 100%;
+        position: fixed;
+        z-index: 1
+    }
+</style>

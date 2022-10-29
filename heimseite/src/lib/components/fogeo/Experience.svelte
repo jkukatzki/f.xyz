@@ -2,15 +2,18 @@
 <script lang="ts">
     import { Canvas, ContextBridge, HierarchicalObject, useThrelte, type ThrelteContext} from '@threlte/core';
 	import { onMount } from 'svelte';
-	import * as THREE from 'three';
-	import { useProgress } from '@threlte/extras';
 
     import Studio from './Studio/Studio.svelte';
 
-    export let studio = false;
-    let studioHandler: {createOutliner: (objs: THREE.Object3D) => void};
 
-    let ctx: ThrelteContext = useThrelte();
+    export let studioWorkspace: string = '';
+    let studioHandler: {
+        sceneGraphUpdate: () => void;
+        selectedObjUpdate: () => void;
+        handleChildMount: (child: THREE.Object3D) => void;
+    };
+
+    let ctx: ThrelteContext;
 
     
 
@@ -19,29 +22,26 @@
         window.navigator.requestMIDIAccess();
     });
 
-
-    const assignUniqueName = function( obj: THREE.Object3D ) {
-        if
-        if(ctx.scene.getObjectByName())
+    $: if (ctx) {
+        console.log('context here', ctx);
+        console.log('Scene', ctx.scene);
     }
-    
+
    
 </script>
 
-
-<Canvas>
-    {#if studio}
-        <Studio ctx={ctx} bind:studio={studioHandler}></Studio>
-        <ContextBridge bind:ctx />
-        {#if ctx}
-            <HierarchicalObject onChildMount={(child) => {ctx.scene.add(child); if(studioHandler){studioHandler.createOutliner(ctx.scene)} }} onChildDestroy={(child) => ctx.scene.remove(child)}>
-                <slot></slot>
-            </HierarchicalObject>
-        {/if}
+{#if studioWorkspace}
+    <Studio ctx={ctx} workspace={studioWorkspace} bind:studio={studioHandler}></Studio>
+{/if}
+<Canvas bind:ctx>
+    {#if studioWorkspace }
+        <HierarchicalObject onChildMount={(child) => {ctx.scene.add(child); studioHandler.handleChildMount(child); studioHandler.sceneGraphUpdate();}} onChildDestroy={(child) => {ctx.scene.remove(child); }}><slot></slot></HierarchicalObject>
     {:else}
         <slot></slot>
     {/if}
 </Canvas>
+
+
 
 
 
