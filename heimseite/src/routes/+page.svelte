@@ -15,6 +15,7 @@
     let titleLogoSrc = '/images/title/gothic_tag_logo.png';
     let titleVideoSrc = '/videos/cat_low.mp4';
 
+
     let pausedTitle: boolean = true;
 
     const globalPointer = new THREE.Vector2(0.5, 0.5);
@@ -66,7 +67,9 @@
         Kann ich dir 'ne Tasse Tee oder so anbieten?
     </p>
     <p id="showcase-text">
-        dings 3D ist cool und so lorem ipsum mipsum forum salve sklave christus sheeshstus silentium por favor blalnalbllalllalallalbllblbubububuufuf
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+        Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
+        At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
     </p>
     <div id="showcase-threejs-aspect-wrapper">
         <div id="showcase-threejs-render">
@@ -202,4 +205,6 @@
       min-width: 20em;
       min-height: 15em;
   }
+
+
 </style>

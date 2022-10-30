@@ -4,17 +4,18 @@
 	import type { PaneConfig } from "tweakpane/dist/types/pane/pane-config";
     import type { ThrelteContext } from "@threlte/core";
 	import * as THREE from "three";
+	import { onMount } from "svelte";
 
     export let ctx: ThrelteContext;
-    export let studio: {sceneGraphUpdate: Function, selectedObjUpdate: Function, handleChildMount: Function}; //use this to forward selected child update to parent studio
+    export let studio: {conditionalDraw: Function, handleChildMount: Function}; //use this to forward selected child update to parent studio
     let el: HTMLElement;
     const editors: { [key: string]: {
-        draw: (arg: any) => Pane,
-        props: {redrawOnSceneGraphUpdate?: boolean, redrawOnSelectedObjUpdate?: boolean},
+        draw: () => Pane,
+        rerenderOn: { sceneGraphUpdate?: boolean, selectedObjectUpdate?: boolean}
         pane?: Pane
     } } = {
         outliner: {
-            draw: (parent: THREE.Object3D) => {
+            draw: () => {
                 el.innerHTML = '';
                 const paneCfg: PaneConfig = {title: 'Outliner', container: el};
                 const pane = new Pane(paneCfg);
@@ -29,8 +30,8 @@
                         const btn = folder.addButton({title: obj.name});
                         btn.on('click', () => {
                             ctx.scene.userData.selected = obj;
-                            obj.position.set(0,0,0);
-                            studio.selectedObjUpdate();
+                            console.log('Selected obj in outliner', obj);
+                            studio.conditionalDraw('selectedObjectUpdate');
                         });
                     }
 
@@ -40,16 +41,30 @@
                 });
                 return pane;
             },
-            props: {
-                redrawOnSceneGraphUpdate: true
+            rerenderOn: {
+                sceneGraphUpdate: true
             }
         },
         properties: {
-            draw: (obj: THREE.Object3D) => {
+            draw: () => {
+                const obj: THREE.Object3D = ctx.scene.userData.selected;
+
                 el.innerHTML = "";
-                return new Pane();
+                const paneCfg: PaneConfig = {title: 'Properties', container: el};
+                const pane = new Pane(paneCfg);
+                if(obj){
+                    let transformFolder = pane.addFolder({title:'Transform'});
+                    transformFolder.addInput(obj, 'position');
+                    transformFolder.addInput(obj, 'scale');
+                    transformFolder.addInput(obj, 'rotation');
+                    if(obj instanceof THREE.Mesh && obj.material){
+                        let materialFolder = pane.addFolder({title:'Material'});
+                        materialFolder.addInput(obj.material, 'color', {color: {type: 'float'}});
+                    }
+                }
+                return pane;
             },
-            props: {redrawOnSelectedObjUpdate: true}
+            rerenderOn: {selectedObjectUpdate: true}
         }
     }
 
@@ -57,10 +72,10 @@
 
     export let editorInstance;
     export let editor: string
-    $: if(editor && el) {
-        console.log('Lets render an editor of type ', editor);
+    onMount(() => {
         editorInstance = editors[editor];
-    }
+        editorInstance.draw();
+    });
 </script>
 
-<div bind:this={el}></div>
+<div bind:this={el}>An editor should be here</div>

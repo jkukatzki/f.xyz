@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ThrelteContext } from "@threlte/core";
+	import { onMount } from "svelte";
     import Grid from "svelte-grid";
     import gridHelp from "svelte-grid/build/helper/index.mjs";
 
@@ -7,48 +8,7 @@
 
     export let workspace: string;
     export let ctx: ThrelteContext;
-    export const studio = {
-        sceneGraphUpdate: () => {
-            for(let windowID in windows){
-                const editorInstances = windows[windowID].editorInstances;
-                for(let editorInstancesKey in editorInstances){
-                    const editorInstance = editorInstances[editorInstancesKey];
-                    console.log('Editor instance checking if it needs update bcecause scene updated', editorInstance)
-                    if(editorInstance.props.redrawOnSceneGraphUpdate){
-                        console.log('Redrawing because of scene graph update...');
-                        editorInstance.draw();
-                    }
-                }
-            }
-        },
-        selectedObjUpdate: () => {
-            for(let windowID in windows){
-                const editorInstances = windows[windowID].editorInstances;
-                for(let editorInstancesKey in editorInstances){
-                    const editorInstance = editorInstances[editorInstancesKey];
-                    if(editorInstance.props.redrawOnSelectedObjUpdate){
-                        editorInstance.draw();
-                    }
-                }
-            }
-        },
-        handleChildMount: (child: THREE.Object3D) => {
-            console.log('Handling child mount for FOGEO:Studio');
-            let newName = child.name ? child.name : typeof child;
-
-            let count = 0;
-            const findAndIncreaseCount = (name: string, scene: THREE.Scene) => {
-                if(scene.getObjectByName(name)){
-                    count++;
-                    findAndIncreaseCount(name+"_"+count, scene);
-                } else {
-                    child.name = name+"_"+count;
-                }
-            }
-            findAndIncreaseCount(newName, ctx.scene);
-            ctx.scene.add(child);
-        }
-    }
+    export let studio: any; //TODO: type annotations
 
     const COLS = 12;
     const cols = [[1800, 12], [1200, 6]]
@@ -63,7 +23,7 @@
             windows: [
                 {
                     [COLS]: gridHelp.item({
-                        x: 0,
+                        x: 10,
                         y: 0,
                         w: 2,
                         h: 4,
@@ -93,12 +53,52 @@
         });
         console.log('Studio.svelte -> setting items for workspace: ', workspace, ' items:', items, ' windows:', windows);
     }
+    onMount(() => {
+        studio = {
+            conditionalDraw(condition: string | true){
+                //condition points to prop in EditorInstance.props
+                if(condition){
+                    for(let windowID in windows){
+                        const editorInstances = windows[windowID].editorInstances;
+                        for(let editorInstancesKey in editorInstances){
+                            const editorInstance = editorInstances[editorInstancesKey];
+                            if(typeof condition == 'boolean' || editorInstance.rerenderOn[condition]){
+                                typeof condition == 'boolean' ? console.log('Rendering editorInstance: ', editorInstance) : console.log('Redrawing because '+condition+' called for update. editorInstance: ', editorInstance);
+                                editorInstance.draw();
+                            } else {
+                                console.error('no draw :(', condition);
+                            }
+                        }
+                    }
+                } else {
+                    console.error('Conditional Studio UI draw was called with instantly exciting condition.', condition)
+                }
+            },
+            handleChildMount: (child: THREE.Object3D) => {
+                console.log('Handling child mount for FOGEO:Studio');
+                let newName = child.name ? child.name : child.type;
+
+                let count = 0;
+                const findAndIncreaseCount = (name: string, scene: THREE.Scene) => {
+                    if(scene.getObjectByName(name)){
+                        count++;
+                        findAndIncreaseCount(name+"_"+count, scene);
+                    } else {
+                        child.name = name+(count > 0 ? "_"+count : '');
+                    }
+                }
+                findAndIncreaseCount(newName, ctx.scene);
+                ctx.scene.add(child);
+            }
+        }
+    });
+
 
 </script>
 
 {#if items && windows}
     <div class="fogeo-studio-fullscreen-fixed" bind:this={fullscreenStudioContainer}>
-        I'm a studio!
+        <div>I'm a studio!</div>
         <Grid scroller={fullscreenStudioContainer} bind:items={items} cols={cols} rowHeight={100}  let:item let:dataItem let:movePointerDown>
             <div class="studio-window-dragger" on:pointerdown={movePointerDown}>============</div>
             <div class="studio-window-wrapper">
@@ -124,7 +124,7 @@
     }
 
     :global(.svlt-grid-shadow) {
-        background: navy;
+        background: black !important;
         bottom: -1em;
     }
 
