@@ -67,6 +67,7 @@
         Kann ich dir 'ne Tasse Tee oder so anbieten?
     </p>
     <p id="showcase-text">
+        
         Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
         Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
         At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
@@ -74,8 +75,8 @@
     <div id="showcase-threejs-aspect-wrapper">
         <div id="showcase-threejs-render">
             <Experience studioWorkspace={"layout"}>
-                <PerspectiveCamera fov={40} position={{x: 4, y: 4, z: 2}} rotation={{x: 0, y: THREE.MathUtils.degToRad(70)}}>
-                	<OrbitControls enablePan={false} enableZoom={false} enableDamping/>
+                <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
+                	<OrbitControls enablePan={false} enableZoom={false} enableDamping></OrbitControls>
                 </PerspectiveCamera>
                 <Desk></Desk>
             </Experience>
@@ -196,14 +197,15 @@
 
   #showcase-threejs-aspect-wrapper {
       position: relative;
-      margin-left: 3em;
   }
 
   #showcase-threejs-render {
-      width: 50vw;
-      height: 37.5vw;
+      width: 120vw;
+      height: 100vh;
+      max-height: 70vw;
+      transform: translateX(-20%);
       min-width: 20em;
-      min-height: 15em;
+      min-height: 100%;
   }
 
 
