@@ -9,9 +9,9 @@
     export let workspace: string;
     export let ctx: ThrelteContext;
     export let studio: any; //TODO: type annotations
-
+    export let hidden: boolean;
     const COLS = 12;
-    const cols = [[1800, 12], [1200, 6]]
+    const cols = [[1800, 12]]
 
     let items: any[];
 
@@ -37,7 +37,7 @@
             ]
         }
     }
-    let fullscreenStudioContainer;
+    let fullscreenStudioContainer: HTMLElement;
     let windows: { [key: string]: { editorInstances: {[key:number]: any} } };
     let currentWorkspace: string;
     $: if(workspace && workspace !== currentWorkspace) {
@@ -53,7 +53,9 @@
         });
         console.log('Studio.svelte -> setting items for workspace: ', workspace, ' items:', items, ' windows:', windows);
     }
+
     onMount(() => {
+        document.body.appendChild(fullscreenStudioContainer);
         studio = {
             conditionalDraw(condition: string | true){
                 //condition points to prop in EditorInstance.props
@@ -97,7 +99,7 @@
 </script>
 
 {#if items && windows}
-    <div class="fogeo-studio-fullscreen-fixed" bind:this={fullscreenStudioContainer}>
+    <div class="fogeo-studio-fullscreen-fixed" class:hidden-studio="{hidden}" bind:this={fullscreenStudioContainer}>
         <div>I'm a studio!</div>
         <Grid scroller={fullscreenStudioContainer} bind:items={items} cols={cols} rowHeight={100}  let:item let:dataItem let:movePointerDown>
             <div class="studio-window-dragger" on:pointerdown={movePointerDown}>============</div>
@@ -112,12 +114,14 @@
 {/if}
 
 <style>
+    .hidden-studio {
+        visibility: hidden;
+    }
     .fogeo-studio-fullscreen-fixed {
         position: fixed;
         background-color: rgba(0,0,0,0.2);
         color: white;
         top: 0;
-        left: 0;
         width: 99vw;
         height: 99vh;
 

@@ -46,7 +46,7 @@
 </script>
 
 {#if studioWorkspace}
-    <div class:hiddenStudio="{!activeStudio}"><Studio ctx={ctx} workspace={studioWorkspace} bind:studio={studioHandler}></Studio>f</div>
+    <Studio ctx={ctx} workspace={studioWorkspace} bind:studio={studioHandler} hidden={!activeStudio}></Studio>
 {/if}
 <Canvas bind:ctx>
     {#if studioWorkspace }
@@ -59,14 +59,3 @@
         <slot></slot>
     {/if}
 </Canvas>
-
-<style>
-    .hiddenStudio {
-        visibility: hidden;
-    }
-</style>
-
-
-
-
-

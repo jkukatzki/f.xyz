@@ -58,7 +58,7 @@
                 <img alt="fogings" class="logo" src="{titleLogoSrc}">
             </div>
         </div>
-    </div>            
+    </div>
     <p id="intro">
         Hey! Schön, dass du da bist :-)<br>
         Ich bin Jona - aka fogings - und du befindest dich auf meiner Seite.<br>
@@ -67,24 +67,26 @@
         Kann ich dir 'ne Tasse Tee oder so anbieten?
     </p>
     <p id="showcase-text">
+        Das Gesamte hier soll einen Einblick geben, in das, was ich gerne verfolge:<br>
         
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
-        Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.
-        At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+        Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
+        Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
+        Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
+
     </p>
-    <div id="showcase-threejs-aspect-wrapper">
-        <div id="showcase-threejs-render">
-            <Experience studioWorkspace={"layout"}>
-                <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
-                	<OrbitControls enablePan={false} enableZoom={false} enableDamping></OrbitControls>
-                </PerspectiveCamera>
-                <Desk></Desk>
-            </Experience>
-        </div>
+    <div id="showcase-threejs-render">
+        <Experience studioWorkspace={"layout"}>
+            <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
+                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.9}}></OrbitControls>
+            </PerspectiveCamera>
+            <Desk></Desk>
+        </Experience>
     </div>
+    <div id="showcase-placeholder"></div>
 </div>
 
 <style>
+
 
     :global(body) {
         background-color: black;
@@ -94,6 +96,7 @@
       font-family: "roboto";
       src: url(fonts/Roboto-Regular.ttf);
   }
+
   #background-threejs-render {
       position: fixed;
       width: 100%;
@@ -102,7 +105,8 @@
   }
 
   #front {
-      width: 90%;
+    height: 100%;
+      width: 90vw;
       margin: auto;
       margin-top: 5em;
       padding-bottom: 5em;
@@ -149,9 +153,9 @@
   }
 
 
-  #title-threejs-aspect-wrapper {
-      position: relative;
-  }
+    #title-threejs-aspect-wrapper {
+        position: relative;
+    }
 
   #title-threejs-render {
       padding-bottom: 40%;
@@ -195,17 +199,17 @@
       background-color:rgba(20, 4, 24, 0.75);
   }
 
-  #showcase-threejs-aspect-wrapper {
-      position: relative;
-  }
-
   #showcase-threejs-render {
-      width: 120vw;
+      width: 90vw;
       height: 100vh;
       max-height: 70vw;
-      transform: translateX(-20%);
-      min-width: 20em;
-      min-height: 100%;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+  }
+  #showcase-placeholder {
+    height: 100vh;
+    max-height: 70vw;
   }
 
 
