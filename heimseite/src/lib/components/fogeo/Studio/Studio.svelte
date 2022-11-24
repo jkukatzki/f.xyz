@@ -79,7 +79,7 @@
             handleChildMount: (child: THREE.Object3D) => {
                 console.log('Handling child mount for FOGEO:Studio');
                 let newName = child.name ? child.name : child.type;
-
+                child.userData.fogeo = {studio: {}};
                 let count = 0;
                 const findAndIncreaseCount = (name: string, scene: THREE.Scene) => {
                     if(scene.getObjectByName(name)){
