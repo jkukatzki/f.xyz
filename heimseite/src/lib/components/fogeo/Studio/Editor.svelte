@@ -26,51 +26,47 @@
                 window.onkeydown = function(e) { pressedKeys[e.key] = true; }
                 let index = 0;
                 const buttonAndFolderCreator = (obj: THREE.Object3D, folder: FolderApi) => {
-                    if(obj instanceof THREE.Group){
-                        const nextFolder = folder.addFolder({title: obj.name});
-                        obj.children.forEach((child) => {
-                            buttonAndFolderCreator(child, nextFolder);
-                        });
-                    } else {
-                        const selectObjBtn = folder.addButton({title: obj.name});
-                        selectObjBtn.element.classList.add('fogeo-object-select-button');
-                        selectObjBtn.on('click', (e) => {
-                            console.log(JSON.stringify(pressedKeys));
-                            if(!pressedKeys['Control']){
-                                for(let selectedKey in selected){
-                                    console.log(selectedKey);
-                                    selected[selectedKey].btn.element.classList.remove('fogeo-object-select-button-active');
-                                }
+                    const selectObjBtn = folder.addButton({title: obj.name});
+                    selectObjBtn.element.classList.add('fogeo-object-select-button');
+                    selectObjBtn.on('click', (e) => {
+                        console.log(JSON.stringify(pressedKeys));
+                        if(!pressedKeys['Control']){
+                            for(let selectedKey in selected){
+                                console.log(selectedKey);
+                                selected[selectedKey].btn.element.classList.remove('fogeo-object-select-button-active');
                             }
-                            selected[selectObjBtn.title] = {btn: selectObjBtn, obj};
-                            selectObjBtn.element.classList.add('fogeo-object-select-button-active');
-                            
-                            selectObjBtn.element.classList.add('fogeo-object-select-button-active');
-                            ctx.scene.userData.selected = obj;
-                            console.log('Selected obj in outliner', obj);
-                            studio.conditionalDraw('selectedObjectUpdate');
-                        });
-                        if(obj.children.length > 0 || Object.keys(obj.userData).length > 0){
-                            const expandObjButton = folder.addButton({title: 'V'});
-                            expandObjButton.element.classList.add('fogeo-object-expand-button');
-                            let expandedObj: FolderApi;
-                            expandObjButton.on('click', () => {
-                                const expanded: boolean = obj.userData?.fogeo?.studio?.expanded;
-                                expandObjButton.title = !expanded ? 'Ʌ' : 'V';
-                                if(!expanded){
-                                    let expansionIndex = folder.children.indexOf(expandObjButton);
-                                    expandedObj = folder.addFolder({index: expansionIndex+1, title: ''});
-                                    obj.children.forEach((expansionChild: THREE.Object3D) => {
-                                        buttonAndFolderCreator(expansionChild, expandedObj);
-                                    });
-                                    obj.userData.fogeo.studio.expanded = true;
-                                } else {
-                                    expandedObj.dispose();
-                                } 
-                            });
                         }
-
+                        selected[selectObjBtn.title] = {btn: selectObjBtn, obj};
+                        selectObjBtn.element.classList.add('fogeo-object-select-button-active');
+                        ctx.scene.userData.selected = obj;
+                        console.log('Selected obj in outliner', obj);
+                        studio.conditionalDraw('selectedObjectUpdate');
+                    });
+                    if(obj.children.length > 0 || Object.keys(obj.userData).length > 0){
+                        const expandObjButton = folder.addButton({title: 'V'});
+                        expandObjButton.element.classList.add('fogeo-object-expand-button');
+                        let expandedObj: FolderApi;
+                        expandObjButton.on('click', () => {
+                            const expanded: boolean = obj.userData?.fogeo?.studio?.expanded;
+                            expandObjButton.title = !expanded ? 'Ʌ' : 'V';
+                            if(!expanded){
+                                let expansionIndex = folder.children.indexOf(expandObjButton);
+                                expandedObj = folder.addFolder({index: expansionIndex+1, title: ''});
+                                obj.children.forEach((expansionChild: THREE.Object3D) => {
+                                    if(!expansionChild.userData.fogeo?.studio){
+                                        expansionChild.userData.fogeo = {studio: {}}
+                                    }
+                                    buttonAndFolderCreator(expansionChild, expandedObj);
+                                });
+                                obj.userData.fogeo.studio.expanded = true;
+                            } else {
+                                expandedObj.dispose();
+                                obj.userData.fogeo.studio.expanded = false;
+                            } 
+                        });
                     }
+
+                    
 
                 }
                 ctx.scene.children.forEach((sceneChild) => {
@@ -107,6 +103,7 @@
                                     const entry = level[userDataSubProperty];
                                     switch(typeof entry){
                                         case 'object': {
+                                            
                                             console.log('Creating new subfolder for userData', userDataSubProperty);
                                             const newSubFolder = userDataSubFolder.addFolder({title: userDataSubProperty})
                                             traverseUserData(entry, newSubFolder);
@@ -145,7 +142,7 @@
     });
 </script>
 
-<div bind:this={el}>An editor should be here</div>
+    <div bind:this={el}>An editor should be here</div>
 
 <style>
     :global(.fogeo-object-select-button) {

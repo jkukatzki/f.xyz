@@ -66,14 +66,18 @@
         Schau dich gerne um, machs dir gemütlich, fühl dich wohl.<br>
         Kann ich dir 'ne Tasse Tee oder so anbieten?
     </p>
-    <p id="showcase-text">
-        Das Gesamte hier soll einen Einblick geben, in das, was ich gerne verfolge:<br>
-        
-        Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
-        Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
-        Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
-
-    </p>
+    <div style="position:absolute; height: 100%; width: 100%">
+        <div id="mobile-showcase-text-pusher"></div>
+        <p id="showcase-text">
+            Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
+            
+            Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
+            Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
+            Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
+    
+        </p>
+    </div>
+    
     <div id="showcase-threejs-render">
         <Experience studioWorkspace={"layout"}>
             <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
@@ -87,33 +91,53 @@
 
 <style>
 
+    @media (max-aspect-ratio: 3/4) {
+        #mobile-showcase-text-pusher {
+            height: 100vh;
+            max-height: 70vw;
+        }
+        #showcase-text {
+            width: 90% !important;
+            right: 0 !important;
+
+        }
+    }
+    @media (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
+
+    }
+    @media (min-aspect-ratio: 1/1) and (max-aspect-ratio: 4/3) {
+
+    }
+    @media (min-aspect-ratio: 4/3) {
+
+    }
 
     :global(body) {
         background-color: black;
         margin: 0;
     }
-  @font-face {
-      font-family: "roboto";
-      src: url(fonts/Roboto-Regular.ttf);
-  }
+    @font-face {
+        font-family: "roboto";
+        src: url(fonts/Roboto-Regular.ttf);
+    }
 
-  #background-threejs-render {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-  }
+    #background-threejs-render {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
 
-  #front {
-    height: 100%;
-      width: 90vw;
-      margin: auto;
-      margin-top: 5em;
-      padding-bottom: 5em;
-      background-color: rgb(80 42 89 / 30%);
-      border-left: pink 1px solid;
-      border-right: pink 1px solid;
-  }
+    #front {
+        height: 100%;
+        width: 90vw;
+        margin: auto;
+        margin-top: 5em;
+        padding-bottom: 5em;
+        background-color: rgb(80 42 89 / 30%);
+        border-left: pink 1px solid;
+        border-right: pink 1px solid;
+    }
 
   #title {
       padding-top: 2em;

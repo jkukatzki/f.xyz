@@ -26,7 +26,6 @@
         }
         geo.attributes.position.needsUpdate = true;
     });
-    
 </script>
 
 <Fog color={'rgb(0,0,0)'} near={0} far={25}></Fog>

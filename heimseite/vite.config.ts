@@ -3,7 +3,7 @@ import type { UserConfig } from 'vite';
 
 const config: UserConfig = {
 	define: {
-		"global": {'svelte-grid':'svelte-grid'}
+
 	},
 	plugins: [sveltekit()]
 };
