@@ -1,7 +1,6 @@
 <script lang="ts">
 
     import { Experience } from '$lib/components/fogeo/fogeo'; 
-
 	import WavyGrid from '$lib/components/experiences/background/WavyGrid.svelte';
     import SpinningStuff from '$lib/components/experiences/title/SpinningStuff.svelte';
     import Desk from '$lib/components/experiences/showcase/Desk.svelte';
@@ -16,7 +15,7 @@
     let titleVideoSrc = '/videos/cat_low.mp4';
 
 
-    let pausedTitle: boolean = true;
+    let pausedTitle = true;
 
     const globalPointer = new THREE.Vector2(0.5, 0.5);
     onMount(() => {
@@ -89,7 +88,7 @@
     <div id="showcase-placeholder"></div>
 </div>
 
-<style>
+<style lang="postcss">
 
     @media (max-aspect-ratio: 3/4) {
         #mobile-showcase-text-pusher {
@@ -116,9 +115,10 @@
         background-color: black;
         margin: 0;
     }
+
     @font-face {
         font-family: "roboto";
-        src: url(fonts/Roboto-Regular.ttf);
+        src: url(/fonts/Roboto-Regular.ttf);
     }
 
     #background-threejs-render {
@@ -165,12 +165,12 @@
   }
 
   .cat-mask  {
-      -webkit-mask-image:url(images/title/mask_cat.png);
+      -webkit-mask-image:url(/images/title/mask_cat.png);
       -webkit-mask-position:center center;
       -webkit-mask-repeat:no-repeat;
       -webkit-mask-size:contain;
     
-      mask-image:url(images/title/mask_cat.png);
+      mask-image:url(/images/title/mask_cat.png);
       mask-position:center center;
       mask-repeat:no-repeat;
       mask-size:contain;

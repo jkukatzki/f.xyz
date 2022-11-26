@@ -7,7 +7,7 @@
         PointLight,
         Fog,
         useFrame,
-        type ThrelteContext,
+        type ThrelteContext
     } from '@threlte/core'
 </script>
 <script lang="ts">

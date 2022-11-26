@@ -45,9 +45,3 @@
 <GLTF interactive on:click={() => {
     showcaseVideoSrc = '/videos/pink_tunnel.mp4';
   }} bind:gltf={$gltf} url={'/models/deskShowcase.glb'}></GLTF>
-
-<style>
-      #showcase-video {
-    display: none;
-  }
-</style>
