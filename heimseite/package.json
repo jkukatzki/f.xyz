@@ -2,7 +2,8 @@
 	"name": "heimseite",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev --host",
+		"dev": "vite dev",
+		"devexp": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "playwright test",
