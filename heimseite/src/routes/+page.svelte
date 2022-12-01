@@ -86,6 +86,9 @@
         </Experience>
     </div>
     <div id="showcase-placeholder"></div>
+    <div id="skills-logos">
+        <div id="angular-button" style="display:inline-block">Angular</div>
+    </div>
 </div>
 
 <style lang="postcss">
@@ -96,9 +99,18 @@
             max-height: 70vw;
         }
         #showcase-text {
-            width: 90% !important;
-            right: 0 !important;
-
+            width: 70% !important;
+            right: unset !important;
+            left: 45%;
+            -webkit-transform: translate(-47.5%, 0%);
+            -moz-transform: translate(-47.5%, 0%);
+            transform: translate(-47.5%, 0%);
+        }
+        #intro {
+            width: 70% !important;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%) !important;
         }
     }
     @media (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
