@@ -4,7 +4,7 @@
 	import WavyGrid from '$lib/components/experiences/background/WavyGrid.svelte';
     import SpinningStuff from '$lib/components/experiences/title/SpinningStuff.svelte';
     import Desk from '$lib/components/experiences/showcase/Desk.svelte';
-
+    import Skills from '$lib/components/Skills.svelte';
 
     import { PerspectiveCamera, PointLight, SpotLight, AmbientLight, OrbitControls} from '@threlte/core';
     
@@ -67,7 +67,7 @@
     </p>
     <div style="position:absolute; height: 100%; width: 100%">
         <div id="mobile-showcase-text-pusher"></div>
-        <p id="showcase-text">
+        <p class="showcase-text">
             Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
             
             Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
@@ -78,17 +78,23 @@
     </div>
     
     <div id="showcase-threejs-render">
-        <Experience studioWorkspace={"layout"}>
+        <Experience><!-- studioWorkspace={"layout"}> -->
             <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
                 <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.9}}></OrbitControls>
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
     </div>
+    <p id="mobile-skills-pusher" class="showcase-text">
+        Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
+        
+        Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
+        Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
+        Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
+
+    </p>
     <div id="showcase-placeholder"></div>
-    <div id="skills-logos">
-        <div id="angular-button" style="display:inline-block">Angular</div>
-    </div>
+    <Skills></Skills>
 </div>
 
 <style lang="postcss">
@@ -98,13 +104,18 @@
             height: 100vh;
             max-height: 70vw;
         }
-        #showcase-text {
+        .showcase-text {
             width: 70% !important;
             right: unset !important;
             left: 45%;
             -webkit-transform: translate(-47.5%, 0%);
             -moz-transform: translate(-47.5%, 0%);
             transform: translate(-47.5%, 0%);
+        }
+        #mobile-skills-pusher {
+            width: 70% !importantf;
+            visibility: hidden;
+            position: relative !important;
         }
         #intro {
             width: 70% !important;
@@ -220,7 +231,7 @@
       background-color:rgba(20, 4, 24, 0.75);
   }
 
-  #showcase-text {
+  .showcase-text {
       position: absolute;
       margin-top: 1em;
       padding: 1.5em;
@@ -233,6 +244,10 @@
 
       border-radius: 10px;
       background-color:rgba(20, 4, 24, 0.75);
+  }
+
+  #mobile-skills-pusher {
+    visibility: collapse;
   }
 
   #showcase-threejs-render {

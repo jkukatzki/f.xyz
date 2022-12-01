@@ -17,7 +17,7 @@
 
     onMount(() => {
         // @ts-ignore
-        window.navigator.requestMIDIAccess();
+        //window.navigator.requestMIDIAccess();
         if(studioWorkspace){
             document.addEventListener('keydown', (e) => {
             if( document.activeElement?.tagName !== "input" ){
