@@ -86,6 +86,9 @@
         </Experience>
     </div>
     <div id="showcase-placeholder"></div>
+    <div id="skills-logos">
+        <div id="angular-button" style="display:inline-block">Angular</div>
+    </div>
 </div>
 
 <style lang="postcss">
