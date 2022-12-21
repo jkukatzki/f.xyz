@@ -23,15 +23,28 @@
             windows: [
                 {
                     [COLS]: gridHelp.item({
-                        x: 10,
+                        x: 8,
                         y: 0,
-                        w: 2,
+                        w: 4,
                         h: 4,
                         customDragger: true
                     }),
-                    id: 'right',
+                    id: 'outlinerRight',
                     data: {
-                        editors: ['outliner', 'properties']
+                        editors: ['outliner']
+                    }
+                },
+                {
+                    [COLS]: gridHelp.item({
+                        x: 8,
+                        y: 4,
+                        w: 4,
+                        h: 4,
+                        customDragger: true
+                    }),
+                    id: 'layoutRight',
+                    data: {
+                        editors: ['properties']
                     }
                 }
             ]
@@ -100,7 +113,7 @@
 
 {#if items && windows}
     <div class="fogeo-studio-fullscreen-fixed" class:hidden-studio="{hidden}" bind:this={fullscreenStudioContainer}>
-        <div>I'm a studio!</div>
+        <div>Studio</div><div style="float:right">X</div>
         <Grid scroller={fullscreenStudioContainer} bind:items={items} cols={cols} rowHeight={100}  let:item let:dataItem let:movePointerDown>
             <div class="studio-window-dragger" on:pointerdown={movePointerDown}>============</div>
             <div class="studio-window-wrapper">

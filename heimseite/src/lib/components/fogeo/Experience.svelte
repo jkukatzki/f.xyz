@@ -6,7 +6,7 @@
     import Studio from './Studio/Studio.svelte';
 
     export let studioWorkspace: string = '';
-    let activeStudio = true;
+    let activeStudio = false;
     let studioHandler: {
         conditionalDraw: (condition: string | boolean) => void;
         handleChildMount: (child: THREE.Object3D) => void;
