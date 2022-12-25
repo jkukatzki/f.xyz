@@ -46,22 +46,34 @@
                         const expandObjButton = folder.addButton({title: 'V'});
                         expandObjButton.element.classList.add('fogeo-object-expand-button');
                         let expandedObj: FolderApi;
+                        const createExpansionFromChildren = () => {
+                            expandObjButton.title = 'Ʌ';
+                            obj.userData.fogeo.studio.expanded = true;
+                            let expansionIndex = folder.children.indexOf(expandObjButton);
+                            expandedObj = folder.addFolder({index: expansionIndex+1, title: ''});
+                            obj.children.forEach((expansionChild: THREE.Object3D) => {
+                                if(!expansionChild.userData.fogeo?.studio){
+                                    expansionChild.userData.fogeo = {studio: {}}
+                                }
+                                buttonAndFolderCreator(expansionChild, expandedObj);
+                            });
+                        }
+                        const closeExpansion = () => {
+                            expandObjButton.title = 'V';
+                            expandedObj.dispose();
+                            obj.userData.fogeo.studio.expanded = false;
+                        }
+                        if(obj instanceof THREE.Group){
+                            createExpansionFromChildren();
+
+                        }
                         expandObjButton.on('click', () => {
                             const expanded: boolean = obj.userData?.fogeo?.studio?.expanded;
                             expandObjButton.title = !expanded ? 'Ʌ' : 'V';
                             if(!expanded){
-                                let expansionIndex = folder.children.indexOf(expandObjButton);
-                                expandedObj = folder.addFolder({index: expansionIndex+1, title: ''});
-                                obj.children.forEach((expansionChild: THREE.Object3D) => {
-                                    if(!expansionChild.userData.fogeo?.studio){
-                                        expansionChild.userData.fogeo = {studio: {}}
-                                    }
-                                    buttonAndFolderCreator(expansionChild, expandedObj);
-                                });
-                                obj.userData.fogeo.studio.expanded = true;
+                                createExpansionFromChildren();
                             } else {
-                                expandedObj.dispose();
-                                obj.userData.fogeo.studio.expanded = false;
+                                closeExpansion();
                             } 
                         });
                     }
@@ -93,6 +105,10 @@
                     if(obj instanceof THREE.Mesh && obj.material){
                         let materialFolder = pane.addFolder({title:'Material'});
                         materialFolder.addInput(obj.material, 'color', {color: {type: 'float'}});
+                    }
+                    if(obj instanceof THREE.Light){
+                        let lightFolder = pane.addFolder({title: 'Light Properties'});
+                        lightFolder.addInput(obj, 'intensity');
                     }
                     if(obj.userData){
                         let objectUserDataFolder = pane.addFolder({title: 'User Data'});

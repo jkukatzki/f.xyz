@@ -71,16 +71,16 @@
             </div>
         </div>
     </div>
-    <p id="intro">
+    <p id="intro" class="text-card">
         Hey! Schön, dass du da bist :-)<br>
         Ich bin Jona - aka fogings - und du befindest dich auf meiner Seite.<br>
         <br>
         Schau dich gerne um, machs dir gemütlich, fühl dich wohl.<br>
         Kann ich dir 'ne Tasse Tee oder so anbieten?
     </p>
-    <div style="position:absolute; height: 100%; width: 100%">
+    <div style="position:absolute; width: 100%; left: 0">
         <div id="mobile-showcase-text-pusher"></div>
-        <p class="showcase-text">
+        <p class="showcase-text text-card">
             Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
             
             Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
@@ -91,15 +91,15 @@
     </div>
     
     <div id="showcase-threejs-render">
-        <Experience><!-- studioWorkspace={"layout"}> -->
-            <PerspectiveCamera fov={40} position={{x: 5.05, y: 0.72, z: 2.42}} rotation={{x: 0, y: 1.11}}>
-                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.9}}></OrbitControls>
+        <Experience studioWorkspace={"layout"}>
+            <PerspectiveCamera fov={40} position={{x: 5.75, y: 0.86, z: 1.05}}>
+                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.84}}></OrbitControls>
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
         <div style="background-color: red; opacity: 50%"></div>
     </div>
-    <p id="mobile-skills-pusher" class="showcase-text">
+    <p id="mobile-skills-pusher" class="showcase-text text-card">
         Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
         
         Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
@@ -107,27 +107,42 @@
         Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
 
     </p>
-    <div id="showcase-placeholder"></div>
-    <Skills></Skills>
+    <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
+        Meine Fähigkeiten beinhalten unter anderem folgende Bereiche:
+    </div>
+    <div class="text-card center-horiz-abs" style="white-space: nowrap;">
+        <Skills></Skills>
+    </div>
 </div>
 
 <style lang="postcss">
 
+    .center-horiz-abs {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .center-horiz-rel {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
     @media (max-aspect-ratio: 3/4) {
         #mobile-showcase-text-pusher {
             height: 100vh;
-            max-height: 70vw;
+            max-height: 55vw;
         }
         .showcase-text {
             width: 70% !important;
             right: unset !important;
-            left: 45%;
-            -webkit-transform: translate(-47.5%, 0%);
-            -moz-transform: translate(-47.5%, 0%);
-            transform: translate(-47.5%, 0%);
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            -moz-transform: translateX(-50%);
+            transform: translateX(-50%) !important;
         }
         #mobile-skills-pusher {
-            width: 70% !importantf;
+            width: 70% !important;
             visibility: hidden;
             position: relative !important;
         }
@@ -151,6 +166,7 @@
     :global(body) {
         background-color: black;
         margin: 0;
+        overflow-x: hidden;
     }
 
     @font-face {
@@ -218,64 +234,53 @@
         position: relative;
     }
 
-  #title-threejs-render {
-      padding-bottom: 40%;
-      height: 100%;
-      width: 100%;
-      max-width: 80vw;
-      left: 50%;
-      -webkit-transform: translate(-50%, 0%);
-      -moz-transform: translate(-50%, 0%);
-      transform: translate(-50%, 0%);
-      position: absolute;
-  }
+    #title-threejs-render {
+        padding-bottom: 40%;
+        height: 100%;
+        width: 100%;
+        max-width: 80vw;
+        left: 50%;
+        -webkit-transform: translate(-50%, 0%);
+        -moz-transform: translate(-50%, 0%);
+        transform: translate(-50%, 0%);
+        position: absolute;
+    }
 
-  #intro {
-      padding: 1.5em;
-      color: rgba(248, 213, 238, 0.801);
-      text-align: left;
-      transform: translateX(10%);
-      width: 40%;
+    #intro {
+        transform: translateX(10%);
+        width: 25%;
+    }
 
-      font-size: 16px;
-      font-family: 'roboto';
-      
-      
-      border-radius: 10px;
-      background-color:rgba(20, 4, 24, 0.75);
-  }
+    .text-card {
+        padding: 1.5em;
+        color: rgba(248, 213, 238, 0.801);
+        font-size: 16px;
+        font-family: 'roboto';
+        border-radius: 10px;
+        background-color:rgba(20, 4, 24, 0.75);
+        text-align: left;
+    }
 
-  .showcase-text {
-      position: absolute;
-      margin-top: 1em;
-      padding: 1.5em;
-      color: rgba(248, 213, 238, 0.801);
-      text-align: left;
-      width: 40%;
-      right: 15vw;
-      font-size: 16px;
-      font-family: 'roboto';
+    .showcase-text {
+        position: absolute;
+        margin-top: 1em;
+        width: 40%;
+        right: 8vw;
+        transform: translateY(-70%);
+    }
 
-      border-radius: 10px;
-      background-color:rgba(20, 4, 24, 0.75);
-  }
+    #mobile-skills-pusher {
+        visibility: collapse;
+    }
 
-  #mobile-skills-pusher {
-    visibility: collapse;
-  }
-
-  #showcase-threejs-render {
-      width: 90vw;
-      height: 100vh;
-      max-height: 70vw;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-  }
-  #showcase-placeholder {
-    height: 100vh;
-    max-height: 70vw;
-  }
+    #showcase-threejs-render {
+        width: 90vw;
+        height: 100vh;
+        max-height: 55vw;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 
 
 </style>

@@ -1,31 +1,88 @@
 <script>
+  let skills = [
+    {
+      text: "Typescript",
+      iconPath: "/images/logos/typescript.svg",
+    },
+    {
+      text: "Angular",
+      iconPath: "/images/logos/angular.svg",
+    },
+    {
+      text: "Svelte",
+      iconPath: "/images/logos/svelte.svg",
+    },
+    {
+      text: "Python",
+      iconPath: "/images/logos/python.svg"
+    },
+    {
+      text: "Java",
+      iconPath: "/images/logos/java.svg",
+    },
+    {
+      text: "Docker",
+      iconPath: "/images/logos/docker.svg"
+    },
+    {
+      text: "Blender",
+      iconPath: "/images/logos/blender.svg"
+    }
+  ]
 </script>
 
-<div id="skills-list">
+
+
+{#each skills as skill}
   <div class="skill-item">
-    <div class="skills-expanded-text">
-      <span>
-          <img class="skill-icon" src="/icons/logos/angular.svg">
-      </span>
-      Angular
-    </div>
+    <span >
+        <img class="skill-icon" alt={skill.text} src={skill.iconPath}>
+    </span>
+    <span class="skill-text">
+        {skill.text}
+    </span>
   </div>
-</div>
+{/each}
 
 <style>
-  .skills-expanded-text {
-    color: white;
-    white-space: nowrap;
-    max-width: 1em;
-  }
-
-  span {
-    align-content: center;
-  }
   .skill-item {
+    position: relative;
     display: inline-block;
+    cursor: pointer;
+    outline: none;
+    border: 0;
+    vertical-align: middle;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 25px;
+    -webkit-transition: width 0.5s;
+    transition: width 0.5s;
   }
   .skill-icon {
-    width: 1em;
+    width: 2em;
+    height: 2em;
   }
+  .skill-text {
+    height: 100%;
+    max-width: 0;
+    display: inline-block;
+    -webkit-transition: color .25s 1.5s, max-width 2s;
+    transition: color .25s 1.5s, max-width 2s;
+    vertical-align: middle;
+    white-space: nowrap;
+    margin-left: 1px;
+    overflow: hidden;
+    color: white;
+    font-family: 'roboto';
+    font-weight: bold;
+    margin-bottom: 1em;
+    margin-right: 0.5em;
+  }
+
+  .skill-item:hover .skill-text {
+    max-width: 300px;
+    color: white;
+  }
+  
+  
 </style>
