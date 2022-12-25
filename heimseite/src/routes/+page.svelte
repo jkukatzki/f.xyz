@@ -11,7 +11,13 @@
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
 
-    let titleLogoSrc = '/images/title/gothic_tag_logo.png';
+    let currentLogoIndex = 0;
+    let titleLogoSrc = '/images/title/logo/gothic_tag.png';
+    const titleLogoArray = [
+        'gothic_tag.png',
+        'clean_tag.png',
+        'throwie.png'    
+    ]
     let titleVideoSrc = '/videos/cat_low.mp4';
 
 
@@ -22,10 +28,17 @@
         document.addEventListener('mousemove', (e) => {
             globalPointer.set(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
         });
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            globalPointer.set(touch.clientX/window.innerWidth, touch.clientY/window.innerHeight);
+        });
     });
     
 </script>
 
+<svelte:head>
+	<title>fogings.xyz</title>
+</svelte:head>
 <div id="background-threejs-render">
     <Experience>
         <WavyGrid globalPointer={globalPointer}></WavyGrid>
@@ -54,7 +67,7 @@
                 on:mouseleave={(e) => {pausedTitle = true}}>
                     <source src="{titleVideoSrc}" type="video/mp4">
                 </video>
-                <img alt="fogings" class="logo" src="{titleLogoSrc}">
+                <img alt="fogings" class="logo" src="{'/images/title/logo/'+titleLogoArray[currentLogoIndex]}" on:mouseenter={() => {currentLogoIndex = (currentLogoIndex+1) % titleLogoArray.length}}>
             </div>
         </div>
     </div>
@@ -84,6 +97,7 @@
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
+        <div style="background-color: red; opacity: 50%"></div>
     </div>
     <p id="mobile-skills-pusher" class="showcase-text">
         Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>

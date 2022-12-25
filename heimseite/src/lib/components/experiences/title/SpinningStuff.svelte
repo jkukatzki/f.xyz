@@ -3,7 +3,7 @@
 	import { useGltf, type ThrelteGltf } from '@threlte/extras';
 
 	import type { Writable } from 'svelte/store';
-    import { SphereGeometry, MeshPhongMaterial, BufferGeometry, Material, Mesh, Vector3, Vector2, BoxGeometry, RGB_PVRTC_2BPPV1_Format} from 'three';
+    import { ConeGeometry, MeshPhongMaterial, BufferGeometry, Material, Mesh, Vector3, Vector2 } from 'three';
 
     export let amount = 3;
     export let lineStart: Vector3 = new Vector3(0,0,0);
@@ -18,14 +18,14 @@
     let materialLeft: Material;
     let geoRight: BufferGeometry;
     let materialRight: Material;
-    let gltf: Writable<ThrelteGltf<any, any> | undefined>;
+    let gltf: Writable<ThrelteGltf<any> | undefined>;
     
     $: {
         if(gltfOrigin){console.log('Fetching ', gltfOrigin); ({gltf} = useGltf(gltfOrigin));}
     }
     $: if($gltf && $gltf.nodes['left'] instanceof Mesh && $gltf.nodes['right'] instanceof Mesh) { geoLeft = $gltf.nodes['left'].geometry; geoRight = $gltf.nodes['right'].geometry; }
     
-    const placeholder = new Mesh(new SphereGeometry(0.5, 3, 3), new MeshPhongMaterial({color: 'pink'}));
+    const placeholder = new Mesh(new ConeGeometry(0.2, 0.8, 3), new MeshPhongMaterial({color: 'pink'}));
     [geoLeft, geoRight] =  [placeholder.geometry, placeholder.geometry];
     [materialLeft, materialRight] = [placeholder.material, placeholder.material];
     let time = 0;
