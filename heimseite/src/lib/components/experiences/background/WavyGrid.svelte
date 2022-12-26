@@ -9,16 +9,19 @@
         useFrame,
         type ThrelteContext
     } from '@threlte/core'
+    import { spring, type Spring } from 'svelte/motion';
 </script>
 <script lang="ts">
 
 
-    export let globalPointer: Vector2 = new Vector2(0.5, 0.5);
+
+
+    export let globalPointer: Spring<{x: number, y: number}> = spring({x: 0.5, y: 0.5});
 
     const geo: BufferGeometry = new PlaneGeometry(35, 35, 25, 25);
     const gridSineSourceEmpty = new Vector2(0.5, 0.5);
     useFrame((ctx: ThrelteContext) => {
-        gridSineSourceEmpty.set((globalPointer.x-0.5)*((Math.abs(globalPointer.y-1)+1)*20), (Math.abs(globalPointer.y-1)-0.5)*12);
+        gridSineSourceEmpty.set(($globalPointer.x-0.5)*((Math.abs($globalPointer.y-1)+1)*20), (Math.abs($globalPointer.y-1)-0.5)*12);
         for(let i = 0; i < geo.attributes.position.count; i++){
             let dist = gridSineSourceEmpty.distanceTo(new Vector2(geo.attributes.position.getX(i), geo.attributes.position.getY(i)));
             const sinDist = Math.sin(dist+ctx.clock.getElapsedTime()/2);

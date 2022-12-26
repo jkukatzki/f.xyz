@@ -7,8 +7,8 @@
     } from '@threlte/extras'
 </script>
 <script lang="ts">
-	import { InteractiveObject, Mesh } from "@threlte/core";
-	import { MeshBasicMaterial } from "three";
+	import { InteractiveObject, Mesh, Object3D } from "@threlte/core";
+	import { MeshBasicMaterial, SphereGeometry } from "three";
 
 
     const { gltf, actions, mixer } = useGltfAnimations(({ actions }) => {
@@ -17,27 +17,26 @@
         actions['idle']?.play();
     });
 
-    let key: THREE.Mesh;
-    let keyPosition: THREE.Vector3;
-    $: if($gltf) {
+    let tastenEmpty: THREE.Object3D | undefined;
+    let lampEmpty: THREE.Object3D | undefined;
+    let lampLightCone: THREE.Object3D | undefined;
+    let firstParse = false;
+
+    $: if($gltf && !firstParse) {
+            firstParse = true;
             console.log('gltf:', $gltf);
-            const tastenEmpty = $gltf.scene.getObjectByName('tasten_empty');
-            /* tastenEmpty?.children.forEach((child) => {
-                console.log('das ne taste', child);
-                if(child instanceof THREE.Mesh){
-                    key = new THREE.Mesh(child.geometry, child.material);
-                }
-            }); */
-            let child = tastenEmpty?.children[0];
-            console.log('das ne taste', child);
-            if(child instanceof THREE.Mesh){
-                key = new THREE.Mesh(child.geometry, child.material);
-                keyPosition = child.position;
-            }
+            tastenEmpty = $gltf.scene.getObjectByName('tasten_empty');
+            tastenEmpty?.children.forEach((child) => {
+                child.userData.originalPos = child.position.clone();
+            });
+            lampEmpty = $gltf.scene.getObjectByName('lamp');
+            lampLightCone = $gltf.scene.getObjectByName('lamp_light_cone');
+            if(lampLightCone && lampEmpty){lampEmpty.remove(lampLightCone);}
         };
 
     
     let showcaseVideoSrc = '/videos/grass_hills.mp4'
+
     let video: HTMLVideoElement;
     let videoTexture: THREE.VideoTexture;
     let videoTextureContainer: HTMLElement;
@@ -61,13 +60,6 @@
         }
 
     }
-
-    const onHover = (obj: THREE.Object3D) => {
-        obj.position.setY(obj.position.y-0.5);
-        console.log('HIIIIIIIIT');
-    }
-
-
 </script>
 
 
@@ -75,10 +67,24 @@
 <GLTF interactive on:click={() => {
     showcaseVideoSrc = '/videos/pink_tunnel.mp4';
   }} bind:gltf={$gltf} url={'/models/deskShowcase2.gltf'}></GLTF>
-{#if key}
-    <Mesh position={{x: keyPosition.x, y: keyPosition.y, z: keyPosition.z}} geometry={key.geometry} material={key.material} interactive on:pointerenter={() => {console.log('pls'); onHover(key)}}></Mesh>
-    <InteractiveObject object={key} interactive on:pointerenter={() => {console.log('pls'); onHover(key)}}></InteractiveObject>    
+{#if tastenEmpty}
+    <Object3D position={tastenEmpty.position} rotation={tastenEmpty.rotation}>
+        {#each tastenEmpty.children as keyChild}
+            <Mesh visible={false} position={keyChild.userData.originalPos} rotation={keyChild.rotation} geometry={keyChild.geometry} material={keyChild.material}
+                interactive
+                on:pointerenter={() => {keyChild.position.y -= 0.02}}
+                on:pointerleave={() => {keyChild.position.y += 0.02}}>
+            </Mesh>
+        {/each}
+    </Object3D>
 {/if}
-
-
-<!--     <Mesh interactive on:pointerenter={() => {key.position.setY(key.position.y -0.5)}} geometry={new THREE.SphereGeometry()} material={new THREE.MeshBasicMaterial()}></Mesh> -->
+{#if lampEmpty && lampLightCone}
+    <Object3D position={lampEmpty.position} rotation={lampEmpty.rotation} scale={lampEmpty.scale}>
+        {#if lampLightCone instanceof THREE.Mesh}
+            <Mesh ignorePointer 
+                geometry={lampLightCone.geometry} material={lampLightCone.material}
+                position={lampLightCone.position} rotation={lampLightCone.rotation} scale={lampLightCone.scale}
+            ></Mesh>
+        {/if}
+    </Object3D>
+{/if}

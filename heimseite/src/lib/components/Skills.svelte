@@ -55,8 +55,8 @@
     text-decoration: none;
     color: #fff;
     border-radius: 25px;
-    -webkit-transition: width 0.5s;
-    transition: width 0.5s;
+    -webkit-transition: width 2s;
+    transition: width 2s;
   }
   .skill-icon {
     width: 2em;
@@ -66,8 +66,8 @@
     height: 100%;
     max-width: 0;
     display: inline-block;
-    -webkit-transition: color .25s 1.5s, max-width 2s;
-    transition: color .25s 1.5s, max-width 2s;
+    -webkit-transition: color .25s 1.5s, max-width 1s;
+    transition: color .25s 1.5s, max-width 1s;
     vertical-align: middle;
     white-space: nowrap;
     margin-left: 1px;

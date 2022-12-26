@@ -10,9 +10,9 @@
     
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
+    import { spring } from 'svelte/motion';
 
     let currentLogoIndex = 0;
-    let titleLogoSrc = '/images/title/logo/gothic_tag.png';
     const titleLogoArray = [
         'gothic_tag.png',
         'clean_tag.png',
@@ -23,14 +23,14 @@
 
     let pausedTitle = true;
 
-    const globalPointer = new THREE.Vector2(0.5, 0.5);
+    const globalPointer = spring({x: 0.5, y: 0.5});
     onMount(() => {
         document.addEventListener('mousemove', (e) => {
-            globalPointer.set(e.clientX/window.innerWidth, e.clientY/window.innerHeight);
+            globalPointer.set({x: e.clientX/window.innerWidth, y: e.clientY/window.innerHeight});
         });
         document.addEventListener('touchmove', (e) => {
             const touch = e.touches[0];
-            globalPointer.set(touch.clientX/window.innerWidth, touch.clientY/window.innerHeight);
+            globalPointer.set({x: touch.clientX/window.innerWidth, y: touch.clientY/window.innerHeight});
         });
     });
     
@@ -108,9 +108,9 @@
 
     </p>
     <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
-        Meine Fähigkeiten beinhalten unter anderem folgende Bereiche:
+        Meine Kenntnisse beinhalten unter anderem diese Bereiche:
     </div>
-    <div class="text-card center-horiz-abs" style="white-space: nowrap;">
+    <div class="text-card center-horiz-abs" style="white-space: nowrap; max-width: 80%; overflow: hidden">
         <Skills></Skills>
     </div>
 </div>

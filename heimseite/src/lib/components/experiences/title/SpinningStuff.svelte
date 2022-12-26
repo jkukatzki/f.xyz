@@ -1,6 +1,7 @@
 <script lang="ts">
     import { PerspectiveCamera, PointLight, InstancedMesh, Instance, useThrelte, useFrame, type ThrelteContext} from '@threlte/core';
 	import { useGltf, type ThrelteGltf } from '@threlte/extras';
+	import { spring, type Spring } from 'svelte/motion';
 
 	import type { Writable } from 'svelte/store';
     import { ConeGeometry, MeshPhongMaterial, BufferGeometry, Material, Mesh, Vector3, Vector2 } from 'three';
@@ -9,7 +10,7 @@
     export let lineStart: Vector3 = new Vector3(0,0,0);
     export let lineEnd: Vector3 = new Vector3(1,0,0);
     export let gltfOrigin: string;
-    export let globalPointer: Vector2 = new Vector2(0.5, 0.5);
+    export let globalPointer: Spring<{x: number, y: number}> = spring({x: 0.5, y: 0.5});
     //TODO: put this in a $: ?
     let lineStartMirrorX: Vector3 = lineStart.clone().setX(lineStart.x*-1);
     let lineEndMirrorX: Vector3 = lineEnd.clone().setX(lineEnd.x*-1)
@@ -51,7 +52,7 @@
         const sideX = (i < amount ? 1 : -1);
         const indexNormalized = (i % amount);
         return new Vector3(
-            mix(globalPointer.y, rotXLinear),
+            mix($globalPointer.y, rotXLinear),
             sideX*time*mix(indexNormalized/amount-1, sclLinear),
             0
         );
