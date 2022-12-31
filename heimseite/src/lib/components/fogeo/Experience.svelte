@@ -5,6 +5,7 @@
 
     import Studio from './Studio/Studio.svelte';
 
+    export let dpr: number | undefined = undefined;
     export let studioWorkspace: string = '';
     let activeStudio = false;
     let studioHandler: {
@@ -48,7 +49,7 @@
 {#if studioWorkspace}
     <Studio ctx={ctx} workspace={studioWorkspace} bind:studio={studioHandler} hidden={!activeStudio}></Studio>
 {/if}
-<Canvas bind:ctx>
+<Canvas bind:ctx dpr={dpr}>
     {#if studioWorkspace }
         <HierarchicalObject 
         onChildMount={(child) => {ctx.scene.add(child); studioHandler.handleChildMount(child); studioHandler.conditionalDraw('sceneGraphUpdate');}}

@@ -126,6 +126,12 @@
                                             break;
                                         }
                                         case 'number': {
+                                            if(entry === Infinity){
+                                                level[userDataSubProperty] = Number.MAX_SAFE_INTEGER;
+                                            } else if(entry === -Infinity){
+                                                level[userDataSubProperty] = Number.MIN_SAFE_INTEGER;
+                                            }
+                                            console.log('Creating input for ', userDataSubProperty)
                                             userDataSubFolder.addInput(level, userDataSubProperty);
                                             break;
                                         }

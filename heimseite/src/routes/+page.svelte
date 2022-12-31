@@ -40,7 +40,7 @@
 	<title>fogings.xyz</title>
 </svelte:head>
 <div id="background-threejs-render">
-    <Experience>
+    <Experience dpr={0.3}>
         <WavyGrid globalPointer={globalPointer}></WavyGrid>
     </Experience>
 </div>
@@ -83,7 +83,7 @@
         <p class="showcase-text text-card">
             Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
             
-            Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
+            Visuell kreativ zu sein und dabei insbesondere das Zeichnen bereitet mir schon immer Freude.
             Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
             Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
     
@@ -93,7 +93,7 @@
     <div id="showcase-threejs-render">
         <Experience studioWorkspace={"layout"}>
             <PerspectiveCamera fov={40} position={{x: 5.75, y: 0.86, z: 1.05}}>
-                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.84}}></OrbitControls>
+                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.84}} maxPolarAngle={1.6} minPolarAngle={1.6}></OrbitControls>
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
@@ -128,7 +128,7 @@
         transform: translateX(-50%);
     }
 
-    @media (max-aspect-ratio: 3/4) {
+    @media (max-aspect-ratio: 9/10) {
         #mobile-showcase-text-pusher {
             height: 100vh;
             max-height: 55vw;
@@ -266,7 +266,7 @@
         margin-top: 1em;
         width: 40%;
         right: 8vw;
-        transform: translateY(-70%);
+        transform: translateY(-90%);
     }
 
     #mobile-skills-pusher {
