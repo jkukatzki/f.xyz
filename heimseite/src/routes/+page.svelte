@@ -18,7 +18,7 @@
         'clean_tag.png',
         'throwie.png'    
     ]
-    let titleVideoSrc = '/videos/cat_low.mp4';
+    let titleVideoSrc = '/videos/cat_lower.mp4';
 
 
     let pausedTitle = true;
@@ -32,8 +32,21 @@
             const touch = e.touches[0];
             globalPointer.set({x: touch.clientX/window.innerWidth, y: touch.clientY/window.innerHeight});
         });
+        
     });
     
+    let deskCamera: THREE.PerspectiveCamera;
+    let deskCameraReadjust = spring(0, {damping: 1});
+    
+    let readjustCamera = () => {
+        const tmp = Math.abs(deskCamera.position.x)/10;
+        if(tmp > 0.08){
+            deskCameraReadjust.set(tmp).then(() => {setTimeout(() => {
+                deskCameraReadjust.set(0)
+            }, 1000); });
+        }
+    }
+
 </script>
 
 <svelte:head>
@@ -91,9 +104,9 @@
     </div>
     
     <div id="showcase-threejs-render">
-        <Experience studioWorkspace={"layout"}>
-            <PerspectiveCamera fov={40} position={{x: 5.75, y: 0.86, z: 1.05}}>
-                <OrbitControls enablePan={false} enableZoom={false} enableDamping target={{y: 0.84}} maxPolarAngle={1.6} minPolarAngle={1.6}></OrbitControls>
+        <Experience studioWorkspace={"layout"} reenableTouchPan={true}>f
+            <PerspectiveCamera bind:camera={deskCamera} fov={40} position={{x: 0.0, y: 0.39, z: 1.9}}>
+                <OrbitControls on:end={readjustCamera} enablePan={false} enableZoom={false} enableDamping target={{y: 0.34}} maxPolarAngle={1.63} minPolarAngle={1.5+$deskCameraReadjust} minAzimuthAngle={-0.6} maxAzimuthAngle={0.6}></OrbitControls>
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
@@ -110,7 +123,7 @@
     <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
         Meine Kenntnisse beinhalten unter anderem diese Bereiche:
     </div>
-    <div class="text-card center-horiz-abs" style="white-space: nowrap; max-width: 80%; overflow: hidden">
+    <div class="text-card skills" style="white-space: nowrap; max-width: 80%; overflow: hidden">
         <Skills></Skills>
     </div>
 </div>
@@ -128,10 +141,19 @@
         transform: translateX(-50%);
     }
 
+    .skills {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
     @media (max-aspect-ratio: 9/10) {
+        .skills {
+            position: relative !important;
+        }
         #mobile-showcase-text-pusher {
             height: 100vh;
-            max-height: 55vw;
+            max-height: 46vw;
         }
         .showcase-text {
             width: 70% !important;
@@ -185,7 +207,7 @@
         height: 100%;
         width: 90vw;
         margin: auto;
-        margin-top: 5em;
+        margin-top: 3em;
         padding-bottom: 5em;
         background-color: rgb(80 42 89 / 30%);
         border-left: pink 1px solid;
@@ -276,7 +298,7 @@
     #showcase-threejs-render {
         width: 90vw;
         height: 100vh;
-        max-height: 55vw;
+        max-height: 46vw;
         position: relative;
         left: 50%;
         transform: translateX(-50%);

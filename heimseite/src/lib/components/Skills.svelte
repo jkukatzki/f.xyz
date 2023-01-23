@@ -33,16 +33,18 @@
 
 
 
-{#each skills as skill}
-  <div class="skill-item">
-    <span >
-        <img class="skill-icon" alt={skill.text} src={skill.iconPath}>
-    </span>
-    <span class="skill-text">
-        {skill.text}
-    </span>
-  </div>
-{/each}
+<div class="mobile">
+  {#each skills as skill}
+    <div class="skill-item">
+      <span>
+          <img class="skill-icon" alt={skill.text} src={skill.iconPath}>
+      </span>
+      <span class="skill-text">
+          {skill.text}
+      </span>
+    </div>
+  {/each}
+</div>
 
 <style>
   .skill-item {
@@ -82,6 +84,18 @@
   .skill-item:hover .skill-text {
     max-width: 300px;
     color: white;
+  }
+  
+  @media (max-aspect-ratio: 9/10) {
+      .mobile {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .mobile > .skill-item > .skill-text {
+        max-width: 300px;
+        margin-bottom: 0;
+      }
   }
   
   

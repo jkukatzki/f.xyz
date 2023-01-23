@@ -24,7 +24,7 @@
         gridSineSourceEmpty.set(($globalPointer.x-0.5)*((Math.abs($globalPointer.y-1)+1)*20), (Math.abs($globalPointer.y-1)-0.5)*12);
         for(let i = 0; i < geo.attributes.position.count; i++){
             let dist = gridSineSourceEmpty.distanceTo(new Vector2(geo.attributes.position.getX(i), geo.attributes.position.getY(i)));
-            const sinDist = Math.sin(dist+ctx.clock.getElapsedTime()/2);
+            const sinDist = Math.sin(dist+ctx.clock.getElapsedTime()/5);
             geo.attributes.position.setZ(i, sinDist);
         }
         geo.attributes.position.needsUpdate = true;
