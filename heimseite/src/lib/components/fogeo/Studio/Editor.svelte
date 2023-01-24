@@ -110,12 +110,19 @@
                         let lightFolder = pane.addFolder({title: 'Light Properties'});
                         lightFolder.addInput(obj, 'intensity');
                     }
+                    if(obj instanceof THREE.PerspectiveCamera){
+                        let cameraFolder = pane.addFolder({title: 'Camera Properties'});
+                        cameraFolder.addInput(obj, 'fov').on('change', () => {
+                            obj.updateProjectionMatrix();
+                        })
+                        
+                    }
                     if(obj.userData){
                         let objectUserDataFolder = pane.addFolder({title: 'User Data'});
                         const traverseUserData = (level: any, userDataSubFolder: FolderApi) => {
                             //object as input to have relation in addInput with key
                             for(const userDataSubProperty in level){
-                                if(level.hasOwnProperty(userDataSubProperty) && !['parent', '0', 'children', 'object'].includes(userDataSubProperty)){
+                                if(level.hasOwnProperty(userDataSubProperty) && !['parent', '0', 'children', 'object', 'domElement', '_domElementKeyEvents', '_listeners'].includes(userDataSubProperty)){
                                     const entry = level[userDataSubProperty];
                                     switch(typeof entry){
                                         case 'object': {

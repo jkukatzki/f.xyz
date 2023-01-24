@@ -7,6 +7,7 @@
 
     export let dpr: number | undefined = undefined;
     export let studioWorkspace: string = '';
+    export let reenableTouchPan: boolean = false;
     let activeStudio = false;
     let studioHandler: {
         conditionalDraw: (condition: string | boolean) => void;
@@ -41,6 +42,9 @@
     $: if (ctx && studioHandler) {
         console.log('context here', ctx);
         console.log('Scene', ctx.scene);
+        if(reenableTouchPan){
+            ctx.renderer?.domElement.classList.add('fogeo-touch-pan-orbit-controls');
+        }
     }
 
    
@@ -60,3 +64,9 @@
         <slot></slot>
     {/if}
 </Canvas>
+
+<style>
+    :global(.fogeo-touch-pan-orbit-controls){
+        touch-action: pan-y !important;
+    }
+</style>

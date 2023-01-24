@@ -29,48 +29,70 @@
             tastenEmpty?.children.forEach((child) => {
                 child.userData.originalPos = child.position.clone();
             });
+
             lampEmpty = $gltf.scene.getObjectByName('lamp');
             lampLightCone = $gltf.scene.getObjectByName('lamp_light_cone');
             if(lampLightCone && lampEmpty){lampEmpty.remove(lampLightCone);}
         };
 
     
-    let showcaseVideoSrc = '/videos/grass_hills.mp4'
+    let showcaseItems: { path: string, videoMaterial?: THREE.Material, video?: HTMLVideoElement}[] = [
+        { path: '/videos/grass_hills.mp4'},
+        { path: '/videos/do_nut.mp4'},
+        { path: '/videos/pink_tunnel.mp4'},
+        { path: '/videos/flesh_ball.mp4'},
+        
+        
+    ]
 
-    let video: HTMLVideoElement;
-    let videoTexture: THREE.VideoTexture;
-    let videoTextureContainer: HTMLElement;
-    $: if($gltf && showcaseVideoSrc && videoTextureContainer){
-        videoTextureContainer.innerHTML = '';
-        video = document.createElement('video');
-        video.muted = true;
-        video.loop = true;
-        const videoSourceEl: HTMLSourceElement = document.createElement('source');
-        videoSourceEl.src = showcaseVideoSrc;
-        video.append(videoSourceEl);
-        if(videoTexture){
-            videoTexture.dispose();
+    let videoScreenMesh: THREE.Mesh;
+    let currentVideoIndex = 0;
+    let prevVideoIndex: number | undefined;
+    $: if($gltf){
+        
+        if(!videoScreenMesh){
+            prevVideoIndex = 0;
+            let screen = $gltf.scene.getObjectByName('crt_screen_portrait_1');
+            if(screen instanceof THREE.Mesh){
+                videoScreenMesh = screen;
+            }
         }
-        video.play();
-        console.log('setting video texture', video.children[0]);
-        videoTexture = new THREE.VideoTexture( video );
-        const videoScreen = $gltf.scene.getObjectByName('computer_2');
-        if(videoScreen instanceof THREE.Mesh){
-            videoScreen.material = new THREE.MeshPhongMaterial({color: 'white', map: videoTexture});
+        if(prevVideoIndex !== undefined){
+            showcaseItems[prevVideoIndex].video?.pause();
         }
+        prevVideoIndex = currentVideoIndex;
 
+        let showcaseItem = showcaseItems[currentVideoIndex];
+
+        if(showcaseItem.videoMaterial){
+            showcaseItem.video?.play();
+            videoScreenMesh.material = showcaseItem.videoMaterial;
+        } else {
+            const video = document.createElement('video');
+            video.muted = true;
+            video.loop = true;
+            const videoSourceEl: HTMLSourceElement = document.createElement('source');
+            videoSourceEl.src = showcaseItem.path;
+            video.append(videoSourceEl);
+            video.play();
+            console.log('setting video texture', video.children[0]);
+            const videoTexture = new THREE.VideoTexture( video );
+            const tmp = new THREE.MeshPhongMaterial({color: 'white', map: videoTexture});
+            videoScreenMesh.material = tmp;
+            showcaseItem.videoMaterial = tmp;
+            showcaseItem.video = video;
+        }
     }
 </script>
 
 
-<div bind:this={videoTextureContainer}></div>
 <GLTF interactive on:click={() => {
-    showcaseVideoSrc = '/videos/pink_tunnel.mp4';
-  }} bind:gltf={$gltf} url={'/models/deskShowcase2.gltf'}></GLTF>
+    currentVideoIndex = (currentVideoIndex+1) % showcaseItems.length;
+  }} bind:gltf={$gltf} url={'/models/deskShowcase.gltf'}></GLTF>
 {#if tastenEmpty}
-    <Object3D position={tastenEmpty.position} rotation={tastenEmpty.rotation}>
+    <Object3D position={tastenEmpty.position} rotation={tastenEmpty.rotation} scale={tastenEmpty.scale}>
         {#each tastenEmpty.children as keyChild}
-            <Mesh visible={false} position={keyChild.userData.originalPos} rotation={keyChild.rotation} geometry={keyChild.geometry} material={keyChild.material}
+            <Mesh visible={false} position={keyChild.userData.originalPos} rotation={keyChild.rotation} scale={{x: 1.1, y: 1.1, z: 1.1}} geometry={keyChild.geometry} material={keyChild.material}
                 interactive
                 on:pointerenter={() => {keyChild.position.y -= 0.02}}
                 on:pointerleave={() => {keyChild.position.y += 0.02}}>
