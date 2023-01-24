@@ -86,7 +86,7 @@
     color: white;
   }
   
-  @media (max-aspect-ratio: 9/10) {
+  @media (max-aspect-ratio: 31/32) {
       .mobile {
         display: flex;
         flex-wrap: wrap;

@@ -40,11 +40,14 @@
     
     let readjustCamera = () => {
         const tmp = Math.abs(deskCamera.position.x)/10;
-        if(tmp > 0.08){
+        if(tmp > 0.1){
             deskCameraReadjust.set(tmp).then(() => {setTimeout(() => {
                 deskCameraReadjust.set(0)
             }, 1000); });
         }
+    }
+    $: if(deskCamera){
+        deskCamera.position.set(0, 0.49, 2.1)
     }
 
 </script>
@@ -104,7 +107,7 @@
     </div>
     
     <div id="showcase-threejs-render">
-        <Experience studioWorkspace={"layout"} reenableTouchPan={true}>f
+        <Experience studioWorkspace={"layout"} reenableTouchPan={true}>
             <PerspectiveCamera bind:camera={deskCamera} fov={40} position={{x: 0.0, y: 0.39, z: 1.9}}>
                 <OrbitControls on:end={readjustCamera} enablePan={false} enableZoom={false} enableDamping target={{y: 0.34}} maxPolarAngle={1.63} minPolarAngle={1.5+$deskCameraReadjust} minAzimuthAngle={-0.6} maxAzimuthAngle={0.6}></OrbitControls>
             </PerspectiveCamera>
@@ -120,15 +123,37 @@
         Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
 
     </p>
-    <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
-        Meine Kenntnisse beinhalten unter anderem diese Bereiche:
+    <div class="ender-desktop">
+        <div style="display: flex; justify-content: space-around;">
+            <img style="width: 100%; max-width: 30vw; pointer-events: none; margin-left: 2em; transform: scale(1.3)" src="/images/work_with_me.png" alt="please work with me">
+            <div style="max-width: 50vw; align-self: center; margin-right: 2em; padding-top: 2em;">
+                <div class="text-card" style="max-width: 40em; font-size: 20px;">
+                    Kenntnisse habe ich unter anderem in diesen Bereichen:
+                </div>
+                <div class="text-card" style="display: flex; justify-content: space-around; white-space: nowrap; overflow: hidden">
+                    <Skills></Skills>
+                </div>
+            </div>
+        </div>
+        
     </div>
-    <div class="text-card skills" style="white-space: nowrap; max-width: 80%; overflow: hidden">
-        <Skills></Skills>
+    <div class="ender-mobile">
+        <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
+            Kenntnisse habe ich unter anderem in diesen Bereichen:
+        </div>
+        <div class="text-card skills" style="white-space: nowrap; max-width: 80%; overflow: hidden">
+            <Skills></Skills>
+        </div>
+        <img class="center-horiz-rel" style="width: 80%; max-width: 70vw; pointer-events: none; transform: translateX(-51%)" src="/images/work_with_me.png" alt="please work with me">
     </div>
+    
 </div>
 
 <style lang="postcss">
+
+    .ender-mobile {
+        display: none;
+    }
 
     .center-horiz-abs {
         position: absolute;
@@ -147,7 +172,13 @@
         transform: translateX(-50%);
     }
 
-    @media (max-aspect-ratio: 9/10) {
+    @media (max-aspect-ratio: 31/32) {
+        .ender-desktop {
+            display: none;
+        }
+        .ender-mobile {
+            display: block;
+        }
         .skills {
             position: relative !important;
         }
@@ -174,15 +205,6 @@
             left: 50%;
             transform: translateX(-50%) !important;
         }
-    }
-    @media (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
-
-    }
-    @media (min-aspect-ratio: 1/1) and (max-aspect-ratio: 4/3) {
-
-    }
-    @media (min-aspect-ratio: 4/3) {
-
     }
 
     :global(body) {
