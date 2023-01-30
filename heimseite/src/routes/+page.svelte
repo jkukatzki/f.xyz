@@ -11,18 +11,20 @@
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
     import { spring } from 'svelte/motion';
+    import { tweened } from 'svelte/motion';
 
     let currentLogoIndex = 0;
     const titleLogoArray = [
-        'gothic_tag.png',
-        'clean_tag.png',
-        'throwie.png'    
+        'gothic_tag_low.png',
+        'throwie_low.png',
+        'clean_tag_low.png',
+            
     ]
     let titleVideoSrc = '/videos/cat_lower.mp4';
 
 
     let pausedTitle = true;
-
+    const spiralsLight = tweened(0.25);
     const globalPointer = spring({x: 0.5, y: 0.5});
     onMount(() => {
         document.addEventListener('mousemove', (e) => {
@@ -47,8 +49,14 @@
         }
     }
     $: if(deskCamera){
-        deskCamera.position.set(0, 0.49, 2.1)
+        deskCamera.position.set(0, 0.59, 2.1)
     }
+
+    let showcaseText = `Das Gesamte hier soll einen kleinen Einblick geben in das, was ich gerne verfolge: <br>
+            
+            Visuell kreativ zu sein und dabei insbesondere das Zeichnen bereitet mir schon lange Freude.
+            Zusammen mit dem Programmieren versuche ich dauerhaft eine Methodik weiterzuentwickeln, mit der es mir gelingt, auf einfache Weise digitale Erfahrungen verschiedenster Arten zu erschaffen.
+            Dabei strebe ich stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.`
 
 </script>
 
@@ -56,7 +64,7 @@
 	<title>fogings.xyz</title>
 </svelte:head>
 <div id="background-threejs-render">
-    <Experience dpr={0.3}>
+    <Experience>
         <WavyGrid globalPointer={globalPointer}></WavyGrid>
     </Experience>
 </div>
@@ -67,7 +75,7 @@
                 <div style="position:absolute; width:100%; height:100%">
                     <Experience>
                         <PerspectiveCamera fov={83} position={{ x: 0, y: 0, z: 1.55 }}/>
-                        <PointLight color={"#ff9cd7"} intensity={(pausedTitle ? 0.5 : 0.3)} distance={100} position={{ z: -0.5 }} />
+                        <PointLight color={"#ff9cd7"} intensity={$spiralsLight} distance={100} position={{ z: -0.5 }} />
                         <PointLight color={"blue"} intensity={0.3} distance={100} position={{z: -5}} />
                         <SpotLight color={"white"} intensity={0.15} distance={60} position={{z: 5}} angle={2}></SpotLight>
                         <SpinningStuff gltfOrigin="/models/spirals.glb" lineStart={new THREE.Vector3(1.2, 0, 0)} lineEnd={new THREE.Vector3(4.8, 0, -1.3)} globalPointer={globalPointer}></SpinningStuff>
@@ -79,11 +87,12 @@
                 class="cat-mask"
                 loop muted disableRemotePlayback
                 bind:paused={pausedTitle}
-                on:mouseenter={(e) => {pausedTitle = false}}
-                on:mouseleave={(e) => {pausedTitle = true}}>
+                on:mouseenter={(e) => {pausedTitle = false; spiralsLight.set(0.6);}}
+                on:mouseleave={(e) => {pausedTitle = true; spiralsLight.set(0.25);}}
+                on:click={(e) => {currentLogoIndex = (currentLogoIndex+1) % titleLogoArray.length}}>
                     <source src="{titleVideoSrc}" type="video/mp4">
                 </video>
-                <img alt="fogings" class="logo" src="{'/images/title/logo/'+titleLogoArray[currentLogoIndex]}" on:mouseenter={() => {currentLogoIndex = (currentLogoIndex+1) % titleLogoArray.length}}>
+                <img alt="fogings" class="logo" src="{'/images/title/logo/'+titleLogoArray[currentLogoIndex]}">
             </div>
         </div>
     </div>
@@ -97,41 +106,42 @@
     <div style="position:absolute; width: 100%; left: 0">
         <div id="mobile-showcase-text-pusher"></div>
         <p class="showcase-text text-card">
-            Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
-            
-            Visuell kreativ zu sein und dabei insbesondere das Zeichnen bereitet mir schon immer Freude.
-            Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
-            Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
-    
+            {@html showcaseText}
         </p>
     </div>
     
     <div id="showcase-threejs-render">
-        <Experience studioWorkspace={"layout"} reenableTouchPan={true}>
+        <Experience studioWorkspace={"layout"} reenableTouchPan={true} indicateProgress={true}>
             <PerspectiveCamera bind:camera={deskCamera} fov={40} position={{x: 0.0, y: 0.39, z: 1.9}}>
-                <OrbitControls on:end={readjustCamera} enablePan={false} enableZoom={false} enableDamping target={{y: 0.34}} maxPolarAngle={1.63} minPolarAngle={1.5+$deskCameraReadjust} minAzimuthAngle={-0.6} maxAzimuthAngle={0.6}></OrbitControls>
+                <OrbitControls on:end={readjustCamera} enablePan={false} enableZoom={false} enableDamping target={{y: 0.34}} maxPolarAngle={1.63} minPolarAngle={1.45+$deskCameraReadjust} minAzimuthAngle={-0.6} maxAzimuthAngle={0.6}></OrbitControls>
             </PerspectiveCamera>
             <Desk></Desk>
         </Experience>
         <div style="background-color: red; opacity: 50%"></div>
     </div>
     <p id="mobile-skills-pusher" class="showcase-text text-card">
-        Das Gesamte hier soll einen Einblick geben in das, was ich gerne verfolge:<br>
-        
-        Visuell kreativ zu sein und dabei insbesondere das Zeichnen, bereitet mir Freude, seitdem ich denken kann.
-        Zusammen mit dem Programmieren habe ich mittlerweile eine Methodik entwickelt, mit der es mir gelingt, digitale Erfahrungen verschiedenster Art zu erschaffen.
-        Ich strebe stets danach, einen Stil für mich zu finden, der sowohl unabhängig von Trends ist als auch mir persönlich am meisten gefällt und trotzdem einer ansprechenden Ästhetik folgt.
-
+        {@html showcaseText}
     </p>
     <div class="ender-desktop">
-        <div style="display: flex; justify-content: space-around;">
-            <img style="width: 100%; max-width: 30vw; pointer-events: none; margin-left: 2em; transform: scale(1.3)" src="/images/work_with_me.png" alt="please work with me">
+        <div style="display: flex; justify-content: space-around; align-items: center;">
+            <img style="width: 100%; height: 100%; max-width: 30vw; pointer-events: none; margin-left: 2em; transform: scale(1.3)" src="/images/work_with_me.png" alt="please work with me">
             <div style="max-width: 50vw; align-self: center; margin-right: 2em; padding-top: 2em;">
                 <div class="text-card" style="max-width: 40em; font-size: 20px;">
-                    Kenntnisse habe ich unter anderem in diesen Bereichen:
+                    Meine Kenntnisse beinhalten unter anderem diese Bereiche:
                 </div>
-                <div class="text-card" style="display: flex; justify-content: space-around; white-space: nowrap; overflow: hidden">
+                <div class="text-card" style="display: flex; justify-content: space-around; white-space: nowrap; overflow: hidden; margin-top: 0.4em;">
                     <Skills></Skills>
+                </div>
+                <div class="text-card center-horiz-rel" style="font-size: 22px; width: 80%; margin-top: 0.4em;">
+                    Kontaktiere mich:
+                    <div>
+                        <span><img src="/images/logos/email.svg" style="margin: 0.15em; width: 1.5em; top: 0.6em; left: -0.1em; position: relative;"></span>
+                        <a href="mailto:j.kukatzki@gmail.com" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">j.kukatzki@gmail.com</a>
+                    </div>
+                    <div>
+                        <span><img src="/images/logos/instagram-logo.svg" style="margin: 0.15em; width: 1.3em; top: 0.5em; position: relative;"></span>
+                        <a href="https://www.instagram.com/cooktildone/" target="_blank" rel="noreferrer" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">@cooktildone</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -139,12 +149,23 @@
     </div>
     <div class="ender-mobile">
         <div class="text-card center-horiz-rel" style="width: 50%; max-width: 30em;">
-            Kenntnisse habe ich unter anderem in diesen Bereichen:
+            Meine Kenntnisse beinhalten unter anderem diese Bereiche:
         </div>
-        <div class="text-card skills" style="white-space: nowrap; max-width: 80%; overflow: hidden">
+        <div class="text-card skills" style="white-space: nowrap; max-width: 80%; overflow: hidden; margin-top: 0.4em;">
             <Skills></Skills>
         </div>
         <img class="center-horiz-rel" style="width: 80%; max-width: 70vw; pointer-events: none; transform: translateX(-51%)" src="/images/work_with_me.png" alt="please work with me">
+        <div class="text-card center-horiz-rel" style="font-size: 22px; width: 50%; text-align: center; ">
+            Kontaktiere mich:
+            <div>
+                <span><img src="/images/logos/email.svg" style="margin: 0.15em; width: 1.5em; top: 0.6em; position: relative;"></span>
+                <a href="mailto:j.kukatzki@gmail.com" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">j.kukatzki@gmail.com</a>
+            </div>
+            <div>
+                <span><img src="/images/logos/instagram-logo.svg" style="margin: 0.15em; width: 1.3em; top: 0.5em; position: relative;"></span>
+                <a href="https://www.instagram.com/cooktildone/" target="_blank" rel="noreferrer" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">@cooktildone</a>
+            </div>
+        </div>
     </div>
     
 </div>
@@ -172,6 +193,13 @@
         transform: translateX(-50%);
     }
 
+    @media (max-aspect-ratio: 29/32) {
+        #front {
+            width: 95vw !important;
+            margin-top: 1em !important;
+        }
+    }
+
     @media (max-aspect-ratio: 31/32) {
         .ender-desktop {
             display: none;
@@ -195,7 +223,6 @@
             transform: translateX(-50%) !important;
         }
         #mobile-skills-pusher {
-            width: 70% !important;
             visibility: hidden;
             position: relative !important;
         }
@@ -303,6 +330,9 @@
         border-radius: 10px;
         background-color:rgba(20, 4, 24, 0.75);
         text-align: left;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
 
     .showcase-text {

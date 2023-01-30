@@ -5,11 +5,10 @@
         PerspectiveCamera,
         Mesh,
         PointLight,
-        Fog,
-        useFrame,
-        type ThrelteContext
+        Fog
     } from '@threlte/core'
     import { spring, type Spring } from 'svelte/motion';
+	import { onMount } from 'svelte';
 </script>
 <script lang="ts">
 
@@ -18,17 +17,18 @@
 
     export let globalPointer: Spring<{x: number, y: number}> = spring({x: 0.5, y: 0.5});
 
-    const geo: BufferGeometry = new PlaneGeometry(35, 35, 25, 25);
+    const geo: BufferGeometry = new PlaneGeometry(34, 34, 50, 50);
     const gridSineSourceEmpty = new Vector2(0.5, 0.5);
-    useFrame((ctx: ThrelteContext) => {
-        gridSineSourceEmpty.set(($globalPointer.x-0.5)*((Math.abs($globalPointer.y-1)+1)*20), (Math.abs($globalPointer.y-1)-0.5)*12);
+    onMount(() => {
+        gridSineSourceEmpty.set(($globalPointer.x-0.5)*((Math.abs($globalPointer.y-1)+1)*20), (Math.abs($globalPointer.y-1)-1)*12);
         for(let i = 0; i < geo.attributes.position.count; i++){
             let dist = gridSineSourceEmpty.distanceTo(new Vector2(geo.attributes.position.getX(i), geo.attributes.position.getY(i)));
-            const sinDist = Math.sin(dist+ctx.clock.getElapsedTime()/5);
+            const sinDist = Math.sin(dist);//+ctx.clock.getElapsedTime()/5);
             geo.attributes.position.setZ(i, sinDist);
         }
         geo.attributes.position.needsUpdate = true;
-    });
+    }
+    );
 </script>
 
 <Fog color={'rgb(0,0,0)'} near={0} far={25}></Fog>

@@ -53,7 +53,7 @@
         const indexNormalized = (i % amount);
         return new Vector3(
             mix($globalPointer.y, rotXLinear),
-            sideX*time*mix(indexNormalized/amount-1, sclLinear),
+            0.5*sideX*time*mix(indexNormalized/amount-1, sclLinear),
             0
         );
     }

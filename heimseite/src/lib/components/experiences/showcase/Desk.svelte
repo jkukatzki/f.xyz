@@ -15,6 +15,7 @@
         console.log('Following actions found for gltf: ', actions);
         actions['face_expression']?.play();
         actions['idle']?.play();
+        actions['mouse_cursor_action']?.play();
     });
 
     let tastenEmpty: THREE.Object3D | undefined;
@@ -46,6 +47,8 @@
     ]
 
     let videoScreenMesh: THREE.Mesh;
+    let mouseCursorMesh: THREE.Object3D | undefined;
+    let mouseCursorVisible = true;
     let currentVideoIndex = 0;
     let prevVideoIndex: number | undefined;
     $: if($gltf){
@@ -56,6 +59,9 @@
             if(screen instanceof THREE.Mesh){
                 videoScreenMesh = screen;
             }
+        }
+        if(!mouseCursorMesh){
+            mouseCursorMesh = $gltf.scene.getObjectByName('mouse_cursor');
         }
         if(prevVideoIndex !== undefined){
             showcaseItems[prevVideoIndex].video?.pause();
@@ -85,10 +91,7 @@
     }
 </script>
 
-
-<GLTF interactive on:click={() => {
-    currentVideoIndex = (currentVideoIndex+1) % showcaseItems.length;
-  }} bind:gltf={$gltf} url={'/models/deskShowcase.gltf'}></GLTF>
+<GLTF  bind:gltf={$gltf} url={'/models/deskShowcase.gltf'}></GLTF>
 {#if tastenEmpty}
     <Object3D position={tastenEmpty.position} rotation={tastenEmpty.rotation} scale={tastenEmpty.scale}>
         {#each tastenEmpty.children as keyChild}
@@ -109,4 +112,12 @@
             ></Mesh>
         {/if}
     </Object3D>
+{/if}
+{#if videoScreenMesh instanceof THREE.Mesh && videoScreenMesh.parent && mouseCursorMesh}
+    <Object3D position={videoScreenMesh.parent.position.clone().add(new THREE.Vector3(0.01, 0, 0.02))} rotation={videoScreenMesh.parent.rotation} scale={videoScreenMesh.parent.scale}>
+        <Mesh visible={false} geometry={videoScreenMesh.geometry} material={new THREE.MeshStandardMaterial()} interactive on:click={() => {
+            currentVideoIndex = (currentVideoIndex+1) % showcaseItems.length; if(mouseCursorVisible){mouseCursorMesh.visible = false; mouseCursorVisible = false;};}}>
+        </Mesh>
+    </Object3D>
+    
 {/if}
