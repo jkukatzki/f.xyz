@@ -91,7 +91,7 @@
     }
 </script>
 
-<GLTF  bind:gltf={$gltf} url={'/models/deskShowcase.gltf'}></GLTF>
+<GLTF  bind:gltf={$gltf} url={'/models/deskShowcase.glb'}></GLTF>
 {#if tastenEmpty}
     <Object3D position={tastenEmpty.position} rotation={tastenEmpty.rotation} scale={tastenEmpty.scale}>
         {#each tastenEmpty.children as keyChild}

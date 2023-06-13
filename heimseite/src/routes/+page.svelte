@@ -135,11 +135,11 @@
                 <div class="text-card center-horiz-rel" style="font-size: 22px; width: 80%; margin-top: 0.4em;">
                     Kontaktiere mich:
                     <div>
-                        <span><img src="/images/logos/email.svg" style="margin: 0.15em; width: 1.5em; top: 0.6em; left: -0.1em; position: relative;"></span>
+                        <span><img alt="email icon" src="/images/logos/email.svg" style="margin: 0.15em; width: 1.5em; top: 0.6em; left: -0.1em; position: relative;"></span>
                         <a href="mailto:j.kukatzki@gmail.com" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">j.kukatzki@gmail.com</a>
                     </div>
                     <div>
-                        <span><img src="/images/logos/instagram-logo.svg" style="margin: 0.15em; width: 1.3em; top: 0.5em; position: relative;"></span>
+                        <span><img alt="instagram icon" src="/images/logos/instagram-logo.svg" style="margin: 0.15em; width: 1.3em; top: 0.5em; position: relative;"></span>
                         <a href="https://www.instagram.com/cooktildone/" target="_blank" rel="noreferrer" style="color: white; -webkit-user-select: none; -ms-user-select: none; user-select: none;">@cooktildone</a>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
             <Skills></Skills>
         </div>
         <img class="center-horiz-rel" style="width: 80%; max-width: 70vw; pointer-events: none; transform: translateX(-51%)" src="/images/work_with_me.png" alt="please work with me">
-        <div class="text-card center-horiz-rel" style="font-size: 22px; width: 50%; text-align: center; ">
+        <div class="text-card center-horiz-rel" style="font-size: 4vw; width: 60%; text-align: center; ">
             Kontaktiere mich:
             <div>
                 <span><img src="/images/logos/email.svg" style="margin: 0.15em; width: 1.5em; top: 0.6em; position: relative;"></span>
@@ -309,7 +309,7 @@
         padding-bottom: 40%;
         height: 100%;
         width: 100%;
-        max-width: 80vw;
+        max-width: 90vw;
         left: 50%;
         -webkit-transform: translate(-50%, 0%);
         -moz-transform: translate(-50%, 0%);

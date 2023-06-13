@@ -80,8 +80,6 @@
                             if(typeof condition == 'boolean' || editorInstance.rerenderOn[condition]){
                                 typeof condition == 'boolean' ? console.log('Rendering editorInstance: ', editorInstance) : console.log('Redrawing because '+condition+' called for update. editorInstance: ', editorInstance);
                                 editorInstance.draw();
-                            } else {
-                                console.error('no draw :(', condition);
                             }
                         }
                     }
