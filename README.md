@@ -1,3 +1,3 @@
 # f.xyz
 
-a compilation of apps
+a compilation of web apps
